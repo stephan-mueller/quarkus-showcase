@@ -19,17 +19,14 @@
 
         <timestamp>${maven.build.timestamp}</timestamp>
 
-        <version.quarkus>1.4.2.Final</version.quarkus>
+        <version.quarkus>1.5.1.Final</version.quarkus>
 
-        <version.microprofile>3.2</version.microprofile>
         <version.microprofile-ext>1.0.5</version.microprofile-ext>
 
         <version.apache_commons-lang>3.6</version.apache_commons-lang>
 
         <version.slf4j>1.7.30</version.slf4j>
 
-        <version.junit5>5.5.1</version.junit5>
-        <version.junit5-launcher>1.5.1</version.junit5-launcher>
         <version.assertj>3.13.0</version.assertj>
         <version.mockito>3.0.0</version.mockito>
 
@@ -158,13 +155,6 @@
         </dependency>
 
         <!-- Microprofile -->
-        <dependency>
-            <groupId>org.eclipse.microprofile</groupId>
-            <artifactId>microprofile</artifactId>
-            <version>${version.microprofile}</version>
-            <type>pom</type>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.microprofile-ext.health-ext</groupId>
             <artifactId>healthprobe-jvm</artifactId>
