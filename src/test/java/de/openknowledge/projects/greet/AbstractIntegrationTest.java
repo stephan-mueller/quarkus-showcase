@@ -17,6 +17,7 @@ package de.openknowledge.projects.greet;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 /**
  * Provides testcontainers for integration tests.
@@ -28,7 +29,7 @@ public abstract class AbstractIntegrationTest {
   protected static final GenericContainer CONTAINER = new GenericContainer("quarkus-showcase:0")
       .withExposedPorts(8080)
       .withNetwork(NETWORK)
-      .withReuse(true);
+      .waitingFor(Wait.forHealthcheck());
 
   static {
     CONTAINER.start();
