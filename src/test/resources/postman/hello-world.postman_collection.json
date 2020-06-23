@@ -1,0 +1,483 @@
+{
+	"info": {
+		"_postman_id": "926a091b-f42a-4f96-9ee9-36f9c5043d51",
+		"name": "Hello World",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Set greeting 'Hello'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4292825-bc62-41e9-82fe-584f8a8be7aa",
+						"exec": [
+							"pm.test(\"Response code is 'no content'\", function () {",
+							"    pm.response.to.have.status(204);",
+							"    pm.response.to.not.be.withBody;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6c8e3d58-7195-4d8b-9e63-5394f9b7cde0",
+						"exec": [
+							"pm.environment.set(\"greeting\", \"\\\"Hello\\\"\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n\t\"greeting\" : {{greeting}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}/api/greet/greeting",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						"greeting"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Say 'Hello World!'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4292825-bc62-41e9-82fe-584f8a8be7aa",
+						"exec": [
+							"pm.test(\"Response code is 'ok'\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"    var schema = {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"message\": {",
+							"                \"type\": \"string\"",
+							"            }",
+							"        }",
+							"    };",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(tv4.validate(data, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Content is valid\", function () {",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(data.message).to.be.eql(\"Hello World!\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/greet/",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set greeting 'Hola'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a25ab5f8-f65b-4911-8d24-55b2a0f1cbee",
+						"exec": [
+							"pm.test(\"Response code is 'no content'\", function () {",
+							"    pm.response.to.have.status(204);",
+							"    pm.response.to.not.be.withBody;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "af276557-fad8-45dd-b17d-ccf0e029d5b3",
+						"exec": [
+							"pm.environment.set(\"greeting\", \"\\\"Hola\\\"\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n\t\"greeting\" : {{greeting}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}/api/greet/greeting",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						"greeting"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Say 'Hola Christian!'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a7cfad5c-a225-42c8-9d39-2773b9b430c2",
+						"exec": [
+							"pm.test(\"Response code is 'ok'\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"    var schema = {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"message\": {",
+							"                \"type\": \"string\"",
+							"            }",
+							"        }",
+							"    };",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(tv4.validate(data, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Content is valid\", function () {",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(data.message).to.be.eql(\"Hola Christian!\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/greet/:name",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						":name"
+					],
+					"variable": [
+						{
+							"key": "name",
+							"value": "Christian",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set greeting 'Hey'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cb549e82-cc2a-4261-b798-6a506fed5998",
+						"exec": [
+							"pm.test(\"Response code is 'no content'\", function () {",
+							"    pm.response.to.have.status(204);",
+							"    pm.response.to.not.be.withBody;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a96f0f22-c700-4bd7-b399-fd42a6954174",
+						"exec": [
+							"pm.environment.set(\"greeting\", \"\\\"Hey\\\"\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n\t\"greeting\" : {{greeting}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}/api/greet/greeting",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						"greeting"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Say 'Hey Max!'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d51c3289-ece8-4b4d-a3c7-1f3c746bd12c",
+						"exec": [
+							"pm.test(\"Response code is 'ok'\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"    var schema = {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"message\": {",
+							"                \"type\": \"string\"",
+							"            }",
+							"        }",
+							"    };",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(tv4.validate(data, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Content is valid\", function () {",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(data.message).to.be.eql(\"Hey Max!\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/greet/:name",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						":name"
+					],
+					"variable": [
+						{
+							"key": "name",
+							"value": "Max",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set greeting 'Moin'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4f651dc5-0f3b-4d7d-97a1-ca478a5ead08",
+						"exec": [
+							"pm.test(\"Response code is 'no content'\", function () {",
+							"    pm.response.to.have.status(204);",
+							"    pm.response.to.not.be.withBody;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fef7fbc7-7cfd-4cd5-a9ee-46e66894f02c",
+						"exec": [
+							"pm.environment.set(\"greeting\", \"\\\"Moin\\\"\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n\t\"greeting\" : {{greeting}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}/api/greet/greeting",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						"greeting"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Say 'Moin Stephan!'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "75ff7669-3bbd-40da-b12d-fed0e727b26a",
+						"exec": [
+							"pm.test(\"Response code is 'ok'\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"    var schema = {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"message\": {",
+							"                \"type\": \"string\"",
+							"            }",
+							"        }",
+							"    };",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(tv4.validate(data, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Content is valid\", function () {",
+							"    var data = JSON.parse(responseBody);",
+							"    pm.expect(data.message).to.be.eql(\"Moin Stephan!\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/greet/:name",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"greet",
+						":name"
+					],
+					"variable": [
+						{
+							"key": "name",
+							"value": "Stephan",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

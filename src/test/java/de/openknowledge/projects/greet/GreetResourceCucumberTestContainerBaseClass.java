@@ -37,16 +37,16 @@ public class GreetResourceCucumberTestContainerBaseClass extends AbstractIntegra
   private EventHandler<TestRunStarted> setup = event -> beforeAll();
 
   private void beforeAll() {
-    CONTAINER.start();
+    APPLICATION.start();
   }
 
   private EventHandler<TestRunFinished> teardown = event -> afterAll();
 
   private void afterAll() {
-    CONTAINER.stop();
+    APPLICATION.stop();
   }
 
   public static GenericContainer<?> getContainer() {
-    return CONTAINER;
+    return APPLICATION;
   }
 }

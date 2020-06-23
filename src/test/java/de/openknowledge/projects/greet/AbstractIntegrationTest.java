@@ -24,14 +24,17 @@ import org.testcontainers.containers.wait.strategy.Wait;
  */
 public abstract class AbstractIntegrationTest {
 
+  protected static final String NETWORK_ALIAS_APPLICATION = "application";
+
   protected static final Network NETWORK = Network.newNetwork();
 
-  protected static final GenericContainer CONTAINER = new GenericContainer("quarkus-showcase:0")
+  protected static final GenericContainer APPLICATION = new GenericContainer("quarkus-showcase:0")
       .withExposedPorts(8080)
       .withNetwork(NETWORK)
+      .withNetworkAliases(NETWORK_ALIAS_APPLICATION)
       .waitingFor(Wait.forHealthcheck());
 
   static {
-    CONTAINER.start();
+    APPLICATION.start();
   }
 }

@@ -37,7 +37,7 @@ public class GreetResourceHealthCheckIT extends AbstractIntegrationTest {
   @Test
   public void checkHealth() {
     RequestSpecification requestSpecification = new RequestSpecBuilder()
-        .setPort(CONTAINER.getFirstMappedPort())
+        .setPort(APPLICATION.getFirstMappedPort())
         .build();
 
     RestAssured.given(requestSpecification)
