@@ -92,7 +92,6 @@
                 <version>1.4.13</version>
                 <configuration>
                     <repository>${project.build.finalName}</repository>
-                    <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}-runner.jar</JAR_FILE>
                     </buildArgs>
