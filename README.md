@@ -1,5 +1,7 @@
 # Quarkus Showcase
 
+[![CircleCI](https://circleci.com/gh/stephan-mueller/quarkus-showcase.svg?style=shield)](https://app.circleci.com/pipelines/github/stephan-mueller/quarkus-showcase)
+
 This is a showcase for the microservice framework [Quarkus](https://quarkus.io). It contains a hello world application, which demonstrates several features of Quarkus and Eclipse Microprofile
 
 Software requirements to run the samples are `maven`, `openjdk-1.8` (or any other 1.8 JDK) and `docker`.
