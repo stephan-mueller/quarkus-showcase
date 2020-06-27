@@ -22,7 +22,7 @@ jobs:
 
       - run:
           name: build and tests
-          command: mvn -B clean verify -Ddockerfile.username=$DOCKER_USER -Ddockerfile.password=$DOCKER_PASS
+          command: mvn -B clean verify -Ddockerfile.username=$DOCKER_USER -Ddockerfile.password=$DOCKER_PASS sonar:sonar --fail-never
 
       - store_test_results:
           path: target/surefire-reports
@@ -31,4 +31,4 @@ workflows:
   main:
     jobs:
       - build:
-          context: docker
+          context: Credentials

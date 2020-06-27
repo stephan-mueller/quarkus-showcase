@@ -24,7 +24,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,7 @@ public class GreetResource {
 
     GreetDTO message = new GreetDTO(service.getMessage(name));
 
-    LOG.info(message.toString());
+    LOG.info("{}", message);
 
     return Response.status(Response.Status.OK)
         .entity(message)
@@ -100,10 +99,8 @@ public class GreetResource {
   @Produces(MediaType.APPLICATION_JSON)
   @RequestBody(name = "greeting", required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = GreetingDTO.class, type = SchemaType.STRING, example = "{\"greeting\" : \"Hola\"}")))
-  @APIResponses({
-      @APIResponse(responseCode = "204", description = "Greeting updated"),
-      @APIResponse(responseCode = "400", description = "Invalid 'greeting' request")
-  })
+  @APIResponse(responseCode = "204", description = "Greeting updated")
+  @APIResponse(responseCode = "400", description = "Invalid 'greeting' request")
   public Response updateGreeting(@Valid final GreetingDTO greeting) {
     LOG.info("Set greeting to {}", greeting.getGreeting());
 

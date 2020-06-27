@@ -54,6 +54,6 @@ public class GreetPostmanIT extends AbstractIntegrationTest {
 
     LOG.info(NEWMAN.getLogs());
 
-    assertThat(NEWMAN.getCurrentContainerInfo().getState().getExitCode()).isEqualTo(0);
+    assertThat(NEWMAN.getCurrentContainerInfo().getState().getExitCode()).isZero();
   }
 }

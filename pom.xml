@@ -32,6 +32,10 @@
         <version.testcontainers>1.12.5</version.testcontainers>
         <version.cucumber>4.8.0</version.cucumber>
         <version.rest-assured>4.0.0</version.rest-assured>
+
+        <sonar.projectKey>stephan-mueller_quarkus-showcase</sonar.projectKey>
+        <sonar.organization>stephan-mueller</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <build>
