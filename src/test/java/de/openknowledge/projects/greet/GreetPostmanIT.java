@@ -30,7 +30,7 @@ import java.time.Duration;
 /**
  * Postman test runner for the application.
  */
-public class GreetPostmanIT extends AbstractIntegrationTest {
+class GreetPostmanIT extends AbstractIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
 

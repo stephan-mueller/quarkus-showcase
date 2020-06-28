@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class for the DTO {@link GreetingDTO}.
  */
-public class GreetingDTOTest {
+class GreetingDTOTest {
 
   @Test
-  public void instantiationShouldFailForMissingValue() {
+  void instantiationShouldFailForMissingValue() {
     assertThatNullPointerException()
         .isThrownBy(() -> new GreetingDTO(null))
         .withMessage("greeting must not be null")
@@ -34,8 +34,16 @@ public class GreetingDTOTest {
   }
 
   @Test
-  public void instantiationShouldSucceed() {
-    GreetingDTO greeting = new GreetingDTO("Hola");
+  void instantiationShouldSucceed() {
+    GreetingDTO greeting = new GreetingDTO();
+    greeting.setGreeting("Hola");
+    assertThat(greeting.getGreeting()).isEqualTo("Hola");
+  }
+
+  @Test
+  void setGreeting() {
+    GreetingDTO greeting = new GreetingDTO();
+    greeting.setGreeting("Hola");
     assertThat(greeting.getGreeting()).isEqualTo("Hola");
   }
 }

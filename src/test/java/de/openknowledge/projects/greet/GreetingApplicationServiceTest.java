@@ -16,26 +16,37 @@
 package de.openknowledge.projects.greet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.junit.jupiter.api.Assertions.*;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test class for the DTO {@link GreetDTO}.
+ * Test class for the service {@link GreetingApplicationService}.
  */
-class GreetDTOTest {
+class GreetingApplicationServiceTest {
 
-  @Test
-  void instantiationShouldFailForMissingValue() {
-    assertThatNullPointerException()
-        .isThrownBy(() -> new GreetDTO(null))
-        .withMessage("message must not be null")
-        .withNoCause();
+  private GreetingApplicationService service;
+
+  @BeforeEach
+  void setUp() {
+    service = new GreetingApplicationService("Hello");
   }
 
   @Test
-  void instantiationShouldSucceed() {
-    GreetDTO greet = new GreetDTO("Hello Stephan!");
-    assertThat(greet.getMessage()).isEqualTo("Hello Stephan!");
+  void getGreeting() {
+    assertThat(service.getGreeting()).isEqualTo("Hello");
+  }
+
+  @Test
+  void updateGreeting() {
+    service.updateGreeting("Hola");
+    assertThat(service.getGreeting()).isEqualTo("Hola");
+  }
+
+  @Test
+  void getMessage() {
+    assertThat(service.getMessage("World")).isEqualTo("Hello World!");
   }
 }

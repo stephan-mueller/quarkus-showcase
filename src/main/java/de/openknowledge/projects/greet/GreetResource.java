@@ -85,7 +85,7 @@ public class GreetResource {
 
     GreetingDTO greeting = new GreetingDTO(service.getGreeting());
 
-    LOG.info("Greeting");
+    LOG.info("{}", greeting);
 
     return Response.status(Response.Status.OK)
         .entity(greeting)

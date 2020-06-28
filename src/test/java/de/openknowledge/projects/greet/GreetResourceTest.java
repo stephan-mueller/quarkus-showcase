@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
  * Test class for the resource {@link GreetResource}.
  */
 @ExtendWith(MockitoExtension.class)
-public class GreetResourceTest {
+class GreetResourceTest {
 
   @InjectMocks
   private GreetResource resource;
@@ -30,12 +30,12 @@ public class GreetResourceTest {
   private GreetingApplicationService service;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     Mockito.lenient().doCallRealMethod().when(service).getMessage(Mockito.anyString());
   }
 
   @Test
-  public void greet() {
+  void greet() {
     Mockito.doReturn("Hola").when(service).getGreeting();
 
     Response response = resource.greet("Stephan");
@@ -48,7 +48,7 @@ public class GreetResourceTest {
   }
 
   @Test
-  public void greetTheWorld() {
+  void greetTheWorld() {
     Mockito.doReturn("Hello").when(service).getGreeting();
 
     Response response = resource.greetTheWorld();

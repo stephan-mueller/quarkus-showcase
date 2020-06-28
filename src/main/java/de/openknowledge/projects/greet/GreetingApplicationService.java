@@ -49,11 +49,11 @@ public class GreetingApplicationService {
     return greeting.get();
   }
 
-  public void updateGreeting(final String greeting) {
-    this.greeting.set(greeting);
-  }
-
   public String getMessage(final String who) {
     return String.format("%s %s!", getGreeting(), who);
+  }
+
+  public void updateGreeting(final String greeting) {
+    this.greeting.set(greeting);
   }
 }
