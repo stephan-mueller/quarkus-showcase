@@ -20,10 +20,52 @@ jar and Docker image and can be run via `docker`:
 
 ```shell script
 $ mvn clean package
-$ docker run --rm -p 8080:8080 quarkus-showcase:0
+$ docker run --rm -p 8080:8080 quarkus-showcase
 ```
 
 If everything worked you can access the OpenAPI UI via http://localhost:8080/swagger-ui.
+
+## How to run a native image 
+
+Before building a native executable and a native image, you have to install the GraalVM on your machine.
+
+1. Install GraalVM (_Hint: check the Quarkus guide [building a native executable](https://quarkus.io/guides/building-native-image) for further details_)
+2. Set GRAALVM_HOME environment variable to the GraalVM installation directory
+3. Install the `native-image` tool using `gu install`
+
+```shell script
+$ export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.1.0/Contents/Home/
+$ ${GRAALVM_HOME}/bin/gu install native-image
+```
+
+To create a docker image with a native executable you have to build the application with the Maven profile `native` 
+```shell script
+$ mvn clean package -Pnative
+$ docker run --rm -p 8080:8080 quarkus-showcase
+```
+
+**Please note:**
+ 
+The native executable is tailored for a specific operating system (Linux, macOS, Windows etc). If you build the native executable on macOS or Windows, you will not be able to use it inside a Linux based docker container. 
+
+You can check the machine architecture with the following command:
+```
+$ file target/quarkus-showcase-runner
+```
+For a native executable build on macOs the output is:
+> target/quarkus-showcase-runner: Mach-O 64-bit executable x86_64
+
+For a native executable build in a Linux container the output is: 
+> target/quarkus-showcase-runner: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/l, for GNU/Linux 3.2.0
+
+
+To build a native executable which is usable inside a docker container you have to set the property `quarkus.native.container-build=true` (the property is set by default when using the Maven profile `native`). Instead of your machine a Linux container runtime is used for the build.    
+
+If you want to try out the native executable on your machine use the following commands:
+```shell script
+$ mvn clean package -Pnative -Dquarkus.native.container-build=false -Ddockerfile.skip
+$ ./target/quarkus-showcase-runner
+```
 
 ## Resolving issues
 

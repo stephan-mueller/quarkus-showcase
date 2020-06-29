@@ -92,6 +92,7 @@
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.13</version>
                 <configuration>
+                    <dockerfile>Dockerfile.jvm</dockerfile>
                     <repository>${project.build.finalName}</repository>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}-runner.jar</JAR_FILE>
@@ -358,4 +359,54 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <properties>
+                <quarkus.package.type>native</quarkus.package.type>
+                <quarkus.native.container-build>true</quarkus.native.container-build>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.quarkus</groupId>
+                        <artifactId>quarkus-maven-plugin</artifactId>
+                        <version>${version.quarkus}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>native-image</goal>
+                                </goals>
+                                <configuration>
+                                    <enableHttpUrlHandler>true</enableHttpUrlHandler>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.spotify</groupId>
+                        <artifactId>dockerfile-maven-plugin</artifactId>
+                        <version>1.4.13</version>
+                        <configuration>
+                            <dockerfile>Dockerfile.native</dockerfile>
+                            <repository>${project.build.finalName}</repository>
+                            <buildArgs>
+                                <NATIVE_EXECUTABLE>${project.build.finalName}-runner</NATIVE_EXECUTABLE>
+                            </buildArgs>
+                            <skipDockerInfo>true</skipDockerInfo>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
