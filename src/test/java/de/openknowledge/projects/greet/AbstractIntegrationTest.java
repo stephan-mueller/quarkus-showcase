@@ -32,9 +32,14 @@ public abstract class AbstractIntegrationTest {
       .withExposedPorts(8080)
       .withNetwork(NETWORK)
       .withNetworkAliases(NETWORK_ALIAS_APPLICATION)
+      .withEnv("JAVA_OPTS", "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-it/jacoco-it.exec")
+      .withFileSystemBind("./target/jacoco-agent", "/jacoco-agent")
+      .withFileSystemBind("./target/jacoco-it", "/jacoco-it")
       .waitingFor(Wait.forHealthcheck());
 
   static {
     APPLICATION.start();
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> APPLICATION.getDockerClient().stopContainerCmd(APPLICATION.getContainerId()).withTimeout(10).exec()));
   }
 }
