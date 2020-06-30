@@ -23,10 +23,10 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 public class Main {
 
   public static void main(String... args) {
-    Quarkus.run(QuarkusShowcase.class, args);
+    Quarkus.run(QuarkusRunner.class, args);
   }
 
-  public static class QuarkusShowcase implements QuarkusApplication {
+  public static class QuarkusRunner implements QuarkusApplication {
 
     @Override
     public int run(final String... args) {
