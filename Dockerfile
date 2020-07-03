@@ -2,7 +2,7 @@ FROM openjdk:8-jre-alpine
 
 RUN apk --no-cache add curl
 
-ARG JAR_FILE
+ARG JAR_FILE=quarkus-showcase-runner.jar
 COPY target/${JAR_FILE} /opt/application.jar
 
 HEALTHCHECK --start-period=10s --timeout=60s --retries=10 --interval=5s CMD curl -f http://localhost:8080/health/ready || exit 1

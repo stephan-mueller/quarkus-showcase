@@ -92,7 +92,7 @@
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.13</version>
                 <configuration>
-                    <dockerfile>Dockerfile.jvm</dockerfile>
+                    <dockerfile>Dockerfile</dockerfile>
                     <repository>${project.build.finalName}</repository>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}-runner.jar</JAR_FILE>
