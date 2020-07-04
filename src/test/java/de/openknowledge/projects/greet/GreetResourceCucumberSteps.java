@@ -44,7 +44,7 @@ public class GreetResourceCucumberSteps {
         .build();
   }
 
-  @Given("a greeting \"([^\"]*)\"")
+  @Given("a greeting {string}")
   public void given_a_greeting(final String greeting) {
     RestAssured.given(requestSpecification)
         .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ public class GreetResourceCucumberSteps {
         .get("/api/greet");
   }
 
-  @When("a user wants to greet \"([^\"]*)\"")
+  @When("a user wants to greet {string}")
   public void when_a_user_wants_to_greet(final String name) {
     response = RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ public class GreetResourceCucumberSteps {
         .get("/api/greet/{name}");
   }
 
-  @Then("the message is \"([^\"]*)\"")
+  @Then("the message is {string}")
   public void then_the_message_is(final String message) {
     response.then()
         .statusCode(Response.Status.OK.getStatusCode())
