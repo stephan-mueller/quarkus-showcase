@@ -182,7 +182,8 @@
                                     <directory>${project.build.directory}</directory>
                                     <includes>
                                         <include>jacoco-ut.exec</include>
-                                        <include>jacoco-it/jacoco-it.exec</include>
+                                        <include>jacoco-it.exec</include>
+                                        <include>jacoco-testcontainers/jacoco-testcontainers.exec</include>
                                     </includes>
                                 </fileSet>
                             </fileSets>

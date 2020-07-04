@@ -32,9 +32,9 @@ public abstract class AbstractIntegrationTest {
       .withExposedPorts(8080)
       .withNetwork(NETWORK)
       .withNetworkAliases(NETWORK_ALIAS_APPLICATION)
-      .withEnv("JAVA_OPTS", "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-it/jacoco-it.exec")
+      .withEnv("JAVA_OPTS", "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-testcontainers/jacoco-testcontainers.exec")
       .withFileSystemBind("./target/jacoco-agent", "/jacoco-agent")
-      .withFileSystemBind("./target/jacoco-it", "/jacoco-it")
+      .withFileSystemBind("./target/jacoco-testcontainers", "/jacoco-testcontainers")
       .waitingFor(Wait.forHealthcheck());
 
   static {
