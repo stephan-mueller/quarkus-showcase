@@ -35,7 +35,7 @@ public class GreetingApplicationService {
   }
 
   /**
-   * Create a new greeting provider, reading the message from configuration.
+   * Create a new greeting service, reading the message from configuration.
    *
    * @param greeting greeting to use
    */
