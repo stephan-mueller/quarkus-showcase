@@ -6,12 +6,21 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=stephan-mueller_quarkus-showcase&metric=alert_status)](https://sonarcloud.io/dashboard?id=stephan-mueller_quarkus-showcase)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=stephan-mueller_quarkus-showcase&metric=coverage)](https://sonarcloud.io/dashboard?id=stephan-mueller_quarkus-showcase)
 
-This is a showcase for the microservice framework [Quarkus](https://quarkus.io). It contains a hello world application, which demonstrates several features of Quarkus and Eclipse Microprofile
+This is a showcase for the microservice framework [Quarkus](https://quarkus.io). It contains a hello world application, 
+which demonstrates several features of Quarkus and Eclipse Microprofile.
 
 Software requirements to run the samples are `maven`, `openjdk-1.8` (or any other 1.8 JDK) and `docker`.
 When running the Maven lifecycle it will create the war package and use the `quarkus-maven-plugin` to create a runnable 
 jar (fat jar) which contains the application and the Quarkus application server. The fat jar will be copied into a
 Docker image using Spotify's `dockerfile-maven-plugin` during the package phase.
+
+**Notable Features:**
+* Dockerfiles for runnable JAR & Native Executable 
+* Integration of MP Health, MP Metrics and MP OpenAPI
+* Testcontainer-Tests with Rest-Assured, Cucumber and Postman/newman
+* Code-Coverage for Testcontainer-Tests
+* [CircleCI](https://circleci.com) Integration
+* [Sonarcloud](https://sonarcloud.io) Integration
 
 ## How to run
 
@@ -46,7 +55,8 @@ $ docker run --rm -p 8080:8080 quarkus-showcase
 
 **Please note:**
  
-The native executable is tailored for a specific operating system (Linux, macOS, Windows etc). If you build the native executable on macOS or Windows, you will not be able to use it inside a Linux based docker container. 
+The native executable is tailored for a specific operating system (Linux, macOS, Windows etc). 
+If you build the native executable on macOS or Windows, you will not be able to use it inside a Linux based docker container. 
 
 You can check the machine architecture with the following command:
 ```
@@ -59,7 +69,9 @@ For a native executable build in a Linux container the output is:
 > target/quarkus-showcase-runner: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/l, for GNU/Linux 3.2.0
 
 
-To build a native executable which is usable inside a docker container you have to set the property `quarkus.native.container-build=true` (the property is set by default when using the Maven profile `native`). Instead of your machine a Linux container runtime is used for the build.    
+To build a native executable which is usable inside a docker container you have to set the property 
+`quarkus.native.container-build=true` (the property is set by default when using the Maven profile `native`). 
+Instead of your machine a Linux container runtime is used for the build.    
 
 If you want to try out the native executable on your machine use the following commands:
 ```shell script
@@ -79,6 +91,6 @@ $ docker ps -a | grep quarkus-showcase
 
 If there are containers remaining although the application has been stopped you can remove them:
 
-````shell script
+```shell script
 $ docker rm <ids of the containers>
-````
+```
