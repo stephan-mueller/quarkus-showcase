@@ -1,7 +1,7 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 WORKDIR /work/
 
-ARG NATIVE_EXECUTABLE
+ARG NATIVE_EXECUTABLE=quarkus-showcase-runner
 COPY target/${NATIVE_EXECUTABLE} /work/application
 RUN chmod 775 /work
 
