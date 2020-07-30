@@ -9,32 +9,33 @@
 This is a showcase for the microservice framework [Quarkus](https://quarkus.io). It contains a hello world application, 
 which demonstrates several features of Quarkus and Eclipse Microprofile.
 
-Software requirements to run the samples are `maven`, `openjdk-1.8` (or any other 1.8 JDK) and `docker`.
+Software requirements to run the samples are `maven`, `openjdk-8` (or any other JDK 8) and `docker`.
 When running the Maven lifecycle it will create the war package and use the `quarkus-maven-plugin` to create a runnable 
-jar (fat jar) which contains the application and the Quarkus application server. The fat jar will be copied into a
+JAR (fat JAR) which contains the application and the Quarkus application server. The fat JAR will be copied into a
 Docker image using Spotify's `dockerfile-maven-plugin` during the package phase.
 
 **Notable Features:**
 * Dockerfiles for runnable JAR & Native Executable 
 * Integration of MP Health, MP Metrics and MP OpenAPI
-* Testcontainer-Tests with Rest-Assured, Cucumber and Postman/newman
-* Code-Coverage for Testcontainer-Tests
+* Testcontainer tests with Rest-Assured, Cucumber and Postman/newman
+* Code-Coverage for Testcontainer tests
 * [CircleCI](https://circleci.com) Integration
 * [Sonarcloud](https://sonarcloud.io) Integration
 
+
 ## How to run
 
-Before running the application it needs to be compiled and packaged using Maven. It creates the required war,
-jar and Docker image and can be run via `docker`:
+Before running the application it needs to be compiled and packaged using `Maven`. It creates the runnable JAR and Docker image and can be 
+run via `docker`:
 
 ```shell script
 $ mvn clean package
 $ docker run --rm -p 8080:8080 quarkus-showcase
 ```
 
-If everything worked you can access the OpenAPI UI via http://localhost:8080/swagger-ui.
+If everything worked you can access the OpenAPI UI via [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui).
 
-## How to run a native image 
+### How to run a native image 
 
 Before building a native executable and a native image, you have to install the GraalVM on your machine.
 
@@ -79,7 +80,7 @@ $ mvn clean package -Pnative -Dquarkus.native.container-build=false -Ddockerfile
 $ ./target/quarkus-showcase-runner
 ```
 
-## Resolving issues
+### Resolving issues
 
 Sometimes it may happen that the containers did not stop as expected when trying to stop the pipeline early. This may
 result in running containers although they should have been stopped and removed. To detect them you need to check
@@ -93,4 +94,56 @@ If there are containers remaining although the application has been stopped you 
 
 ```shell script
 $ docker rm <ids of the containers>
+```
+
+
+## Features
+
+### Application 
+
+The application is a very simple "Hello World" greeting service. It supports GET requests for generating a greeting message, and a PUT 
+request for changing the greeting itself. The response is encoded using JSON.
+
+Try the application
+```shell script
+curl -X GET http://localhost:8080/api/greet
+{"message":"Hello World!"}
+
+curl -X GET http://localhost:8080/api/greet/Stephan
+{"message":"Hello Stephan!"}
+
+curl -X PUT -H "Content-Type: application/json" -d '{"greeting" : "Hola"}' http://localhost:8080/api/greet/greeting
+
+curl -X GET http://localhost:8080/api/greet/greeting
+{"greeting":"Hola"}
+
+curl -X GET http://localhost:8080/api/greet/Max
+{"message":"Hola Max!"}
+```
+
+### Health, Metrics and OpenAPI
+
+The application server provides built-in support for health, metrics and openapi endpoints.
+
+Health liveness and readiness
+```shell script
+curl -s -X GET http://localhost:8080/health
+
+curl -s -X GET http://localhost:8080/health/live
+
+curl -s -X GET http://localhost:8080/health/ready
+```
+
+Metrics in Prometheus / JSON Format
+```shell script
+curl -s -X GET http://localhost:8080/metrics
+
+curl -H 'Accept: application/json' -X GET http://localhost:8080/metrics
+```
+
+OpenAPI in YAML / JSON Format
+```shell script
+curl -s -X GET http://localhost:8080/openapi
+
+curl -H 'Accept: application/json' -X GET http://localhost:8080/openapi
 ```
