@@ -35,7 +35,8 @@ import javax.ws.rs.core.Application;
     servers = @Server(url = "http://{host}:{port}", variables = {
         @ServerVariable(name = "host", defaultValue = "localhost"),
         @ServerVariable(name = "port", defaultValue = "8080")
-    }))
+    })
+)
 public class JaxRsActivator extends Application {
 
 }
