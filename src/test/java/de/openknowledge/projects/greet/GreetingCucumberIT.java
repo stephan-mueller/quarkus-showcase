@@ -23,10 +23,9 @@ import io.cucumber.junit.CucumberOptions;
 /**
  * Cucumber-Test for the resource {@link de.openknowledge.projects.greet.GreetResource}.
  *
- * @see GreetResourceCucumberSteps
- * @see GreetResourceCucumberTestContainerBaseClass
+ * @see GreetingCucumberSteps
  */
 @RunWith(Cucumber.class)
-@CucumberOptions(plugin = { "pretty", "de.openknowledge.projects.greet.GreetResourceCucumberTestContainerBaseClass"}, features = "src/test/resources/it/feature")
-public class GreetResourceCucumberIT {
+@CucumberOptions(plugin = {"pretty"}, features = "src/test/resources/it/feature")
+public class GreetingCucumberIT {
 }

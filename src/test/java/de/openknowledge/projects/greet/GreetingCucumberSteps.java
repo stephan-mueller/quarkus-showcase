@@ -29,9 +29,9 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 
 /**
- * Step Definitions for the cucumber test {@link GreetResourceCucumberIT}.
+ * Step Definitions for the cucumber test {@link GreetingCucumberIT}.
  */
-public class GreetResourceCucumberSteps {
+public class GreetingCucumberSteps extends AbstractIntegrationTest {
 
   private RequestSpecification requestSpecification;
 
@@ -40,7 +40,7 @@ public class GreetResourceCucumberSteps {
   @Before
   public void beforeScenario() {
     requestSpecification = new RequestSpecBuilder()
-        .setPort(GreetResourceCucumberTestContainerBaseClass.getContainer().getFirstMappedPort())
+        .setPort(APPLICATION.getFirstMappedPort())
         .build();
   }
 
