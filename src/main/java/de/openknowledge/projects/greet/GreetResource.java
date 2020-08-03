@@ -78,7 +78,6 @@ public class GreetResource {
   @Path("greeting")
   @GET
   @Operation(operationId = "getGreeting", description = "Get greeting")
-  @Produces(MediaType.APPLICATION_JSON)
   @APIResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = GreetingDTO.class)))
   public Response getGreeting() {
     LOG.info("Get greeting");
@@ -95,8 +94,6 @@ public class GreetResource {
   @Path("greeting")
   @PUT
   @Operation(operationId = "updateGreeting", description = "Update greeting")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
   @RequestBody(name = "greeting", required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = GreetingDTO.class, type = SchemaType.OBJECT, example = "{\"greeting\" : \"Hola\"}")))
   @APIResponse(responseCode = "204", description = "Greeting updated")
