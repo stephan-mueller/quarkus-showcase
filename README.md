@@ -256,12 +256,11 @@ Feature: Greeting
       | Moin     | Stephan   |
 ```
 
-To run cucumber tests, you still have to to use the `Cucumber` JUnit4 runner, due to missing support for JUnit5.
+To run cucumber tests, you have to to use the `Cucumber` JUnit runner.
 
-GreetingCucumberIT - JUnit4 based test class that runs all acceptance tests of the project
+GreetingCucumberIT - Test runner that runs all acceptance tests of the project
 ```java
-@RunWith(Cucumber.class)
-@CucumberOptions(plugin = {"pretty"}, features = "src/test/resources/it/feature")
+@Cucumber
 public class GreetingCucumberIT {
 }
 ```

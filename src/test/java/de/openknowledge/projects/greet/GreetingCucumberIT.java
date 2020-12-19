@@ -17,15 +17,13 @@ package de.openknowledge.projects.greet;
 
 import org.junit.runner.RunWith;
 
-import io.cucumber.junit.Cucumber;
-import io.cucumber.junit.CucumberOptions;
+import io.cucumber.junit.platform.engine.Cucumber;
 
 /**
  * Cucumber-Test for the resource {@link de.openknowledge.projects.greet.GreetResource}.
  *
  * @see GreetingCucumberSteps
  */
-@RunWith(Cucumber.class)
-@CucumberOptions(plugin = {"pretty"}, features = "src/test/resources/it/feature")
+@Cucumber
 public class GreetingCucumberIT {
 }
