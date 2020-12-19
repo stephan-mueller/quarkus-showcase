@@ -18,7 +18,7 @@
 
         <timestamp>${maven.build.timestamp}</timestamp>
 
-        <version.quarkus>1.8.1.Final</version.quarkus>
+        <version.quarkus>1.10.3.Final</version.quarkus>
 
         <version.microprofile-ext>1.1.0</version.microprofile-ext>
 
