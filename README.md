@@ -236,9 +236,9 @@ the Java language. Cucumber reads executable specifications written in natural l
 specifications say. The specifications consist of several examples or scenarios - which is why this approach is known as 
 [Specification by Example](https://en.wikipedia.org/wiki/Specification_by_example).
 
-Greeting.feature - Acceptance tests in natural language (Gherkin syntax)
+Greet.feature - Acceptance tests in natural language (Gherkin syntax)
 ```gherkin
-Feature: Greeting
+Feature: Greet
 
   Scenario: Greet the world
     Given a greeting "Hello"
@@ -268,9 +268,9 @@ public class GreetingCucumberIT {
 
 Due to its BDD-oriented nature, REST-assured seamlessly integrates with Cucumber to implement acceptance tests for RESTful APIs. To 
 
-GreetingCucumberSteps - Step definitions matching the steps in the feature file
+GreetCucumberSteps - Step definitions matching the steps in the feature file
 ```java
-public class GreetingCucumberSteps extends AbstractIntegrationTest {
+public class GreetCucumberSteps extends AbstractIntegrationTest {
 
   private RequestSpecification requestSpecification;
 
@@ -325,29 +325,29 @@ As expected the execution of the specification examples can also be easily follo
 
 Cucucmber log output
 ```text
-[INFO] Running de.openknowledge.projects.greet.GreetingCucumberIT
+[INFO] Running de.openknowledge.projects.greet.GreetCucumberIT
 
-Scenario: Greet the world                # src/test/resources/it/feature/Greeting.feature:3
-  Given a greeting "Hello"               # de.openknowledge.projects.greet.GreetingCucumberSteps.given_a_greeting(java.lang.String)
-  When a user wants to greet             # de.openknowledge.projects.greet.GreetingCucumberSteps.when_a_user_wants_to_greet()
-  Then the message is "Hello World!"     # de.openknowledge.projects.greet.GreetingCucumberSteps.then_the_message_is(java.lang.String)
+Scenario: Greet the world                # src/test/resources/it/feature/Greet.feature:3
+  Given a greeting "Hello"               # de.openknowledge.projects.greet.GreetCucumberSteps.given_a_greeting(java.lang.String)
+  When a user wants to greet             # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_greet()
+  Then the message is "Hello World!"     # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_message_is(java.lang.String)
 
-Scenario Outline: Greet someone          # src/test/resources/it/feature/Greeting.feature:15
-  Given a greeting "Hola"                # de.openknowledge.projects.greet.GreetingCucumberSteps.given_a_greeting(java.lang.String)
-  When a user wants to greet "Christian" # de.openknowledge.projects.greet.GreetingCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
-  Then the message is "Hola Christian!"  # de.openknowledge.projects.greet.GreetingCucumberSteps.then_the_message_is(java.lang.String)
+Scenario Outline: Greet someone          # src/test/resources/it/feature/Greet.feature:15
+  Given a greeting "Hola"                # de.openknowledge.projects.greet.GreetCucumberSteps.given_a_greeting(java.lang.String)
+  When a user wants to greet "Christian" # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
+  Then the message is "Hola Christian!"  # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_message_is(java.lang.String)
 
-Scenario Outline: Greet someone          # src/test/resources/it/feature/Greeting.feature:16
-  Given a greeting "Hey"                 # de.openknowledge.projects.greet.GreetingCucumberSteps.given_a_greeting(java.lang.String)
-  When a user wants to greet "Max"       # de.openknowledge.projects.greet.GreetingCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
-  Then the message is "Hey Max!"         # de.openknowledge.projects.greet.GreetingCucumberSteps.then_the_message_is(java.lang.String)
+Scenario Outline: Greet someone          # src/test/resources/it/feature/Greet.feature:16
+  Given a greeting "Hey"                 # de.openknowledge.projects.greet.GreetCucumberSteps.given_a_greeting(java.lang.String)
+  When a user wants to greet "Max"       # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
+  Then the message is "Hey Max!"         # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_message_is(java.lang.String)
 
-Scenario Outline: Greet someone          # src/test/resources/it/feature/Greeting.feature:17
-  Given a greeting "Moin"                # de.openknowledge.projects.greet.GreetingCucumberSteps.given_a_greeting(java.lang.String)
-  When a user wants to greet "Stephan"   # de.openknowledge.projects.greet.GreetingCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
-  Then the message is "Moin Stephan!"    # de.openknowledge.projects.greet.GreetingCucumberSteps.then_the_message_is(java.lang.String)
+Scenario Outline: Greet someone          # src/test/resources/it/feature/Greet.feature:17
+  Given a greeting "Moin"                # de.openknowledge.projects.greet.GreetCucumberSteps.given_a_greeting(java.lang.String)
+  When a user wants to greet "Stephan"   # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
+  Then the message is "Moin Stephan!"    # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_message_is(java.lang.String)
 
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.916 s - in de.openknowledge.projects.greet.GreetingCucumberIT
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.916 s - in de.openknowledge.projects.greet.GreetCucumberIT
 ```
 
 #### API Tests with Testcontainer and Postman/Newman
@@ -365,9 +365,9 @@ to be copied to the docker image, and a file system bind has to be configured, t
 the containers is stopped before the test collection is executed, a `OneShotStartupCheckStrategy` with a timeout of 5 to 10 seconds has to 
 be configured for the newman container.
 
-GreetingPostmanIT - Newman container that runs a Postman collection against the containerized application.
+GreetPostmanIT - Newman container that runs a Postman collection against the containerized application.
 ```java
-class GreetingPostmanIT extends AbstractIntegrationTest {
+class GreetPostmanIT extends AbstractIntegrationTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
 

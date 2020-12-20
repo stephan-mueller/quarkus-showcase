@@ -29,9 +29,9 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 
 /**
- * Step Definitions for the cucumber test {@link GreetingCucumberIT}.
+ * Step Definitions for the cucumber test {@link GreetCucumberIT}.
  */
-public class GreetingCucumberSteps extends AbstractIntegrationTest {
+public class GreetCucumberSteps extends AbstractIntegrationTest {
 
   private RequestSpecification requestSpecification;
 
