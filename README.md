@@ -34,7 +34,8 @@ $ mvn clean package
 $ docker run --rm -p 8080:8080 quarkus-showcase
 ```
 
-If everything worked you can access the OpenAPI UI via [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui).
+If everything worked you can access the OpenAPI UI via [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui). In addition to
+that the Quarkus Health UI can be accessed via http://localhost:8080/health-ui/.
 
 ### How to run a native image 
 
