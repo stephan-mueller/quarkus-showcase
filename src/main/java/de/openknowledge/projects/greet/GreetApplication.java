@@ -37,6 +37,6 @@ import javax.ws.rs.core.Application;
         @ServerVariable(name = "port", defaultValue = "8080")
     })
 )
-public class JaxRsActivator extends Application {
+public class GreetApplication extends Application {
 
 }
