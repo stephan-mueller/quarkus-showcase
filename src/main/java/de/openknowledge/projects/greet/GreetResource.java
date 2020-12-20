@@ -16,6 +16,8 @@
 package de.openknowledge.projects.greet;
 
 import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Metered;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -27,6 +29,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -44,7 +47,7 @@ import javax.ws.rs.core.Response;
 @Path("greet")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Timed(name = "Greet", displayName = "Greet", unit = MetricUnits.MILLISECONDS, description = "Metrics of the GreetResource")
+@RequestScoped
 public class GreetResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetResource.class);
@@ -56,6 +59,9 @@ public class GreetResource {
   @Path("{name}")
   @Operation(operationId = "greetSomeone", description = "Greet someone")
   @APIResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = GreetDTO.class)))
+  @Counted(name = "greetCount", absolute = true)
+  @Metered(name = "greetMeter", absolute = true)
+  @Timed(name = "greetTimer", absolute = true, unit = MetricUnits.MILLISECONDS)
   public Response greet(@Parameter(description = "name") @PathParam("name") final String name) {
     LOG.info("Greet {}", name);
 

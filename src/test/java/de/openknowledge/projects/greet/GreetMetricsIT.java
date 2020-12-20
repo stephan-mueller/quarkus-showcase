@@ -16,10 +16,8 @@
 package de.openknowledge.projects.greet;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -29,28 +27,32 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 
 /**
- * Integration test for the health check {@link GreetResourceHealthCheck}.
+ * Integration test for the application metrics.
  */
-@Disabled
-class GreetResourceHealthCheckIT extends AbstractIntegrationTest {
+class GreetMetricsIT extends AbstractIntegrationTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GreetResourceHealthCheckIT.class);
 
-  @Test
-  void checkHealth() {
-    RequestSpecification requestSpecification = new RequestSpecBuilder()
+  private static RequestSpecification requestSpecification;
+
+  @BeforeAll
+  static void setUpUri() {
+    requestSpecification = new RequestSpecBuilder()
         .setPort(APPLICATION.getFirstMappedPort())
         .build();
+  }
 
+  @Test
+  void checkApplicationMetrics() {
     RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/health")
+        .get("/metrics/application")
         .then()
         .contentType(MediaType.APPLICATION_JSON)
         .statusCode(Response.Status.OK.getStatusCode())
-        .body("status", Matchers.equalTo("UP"))
-        .rootPath("checks.find{ it.name == 'GreetResource' }")
-        .body("status", Matchers.equalTo("UP"));
+        .body("size()", Matchers.equalTo(4))
+        .body("greetCount", Matchers.notNullValue())
+        .body("greetMeter", Matchers.notNullValue())
+        .body("greetTimer", Matchers.notNullValue());
   }
 }
