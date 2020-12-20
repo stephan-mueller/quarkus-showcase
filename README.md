@@ -18,6 +18,7 @@ Docker image using Spotify's `dockerfile-maven-plugin` during the package phase.
 * Dockerfiles for runnable JAR & Native Executable 
 * Integration of MP Health, MP Metrics and MP OpenAPI
 * Testcontainer tests with Rest-Assured, Cucumber and Postman/newman
+* Quarkus tests with Rest-Assured
 * Code-Coverage for Testcontainer tests
 * [CircleCI](https://circleci.com) Integration
 * [Sonarcloud](https://sonarcloud.io) Integration
@@ -189,7 +190,7 @@ To ease making HTTP requests to the containerized application, REST-assured prov
 request parameters for different tests. The `RequestSpecBuilder` is used to define the dynamic port of the application for all requests only 
 once. 
 
-GreetingResourceIT - Integration tests for the GreetingResource
+GreetResourceIT - Integration tests for the GreetResource
 ```java
 class GreetResourceIT extends AbstractIntegrationTest {
 
@@ -391,6 +392,63 @@ class GreetingPostmanIT extends AbstractIntegrationTest {
     LOG.info(NEWMAN.getLogs());
 
     assertThat(NEWMAN.getCurrentContainerInfo().getState().getExitCode()).isZero();
+  }
+}
+```
+
+
+### Quarkus tests with REST-assured
+
+In addition to the testcontainer based tests a set of Quarkus tests is provided to demonstrate a Quarkus-only solution to implement and run
+integration tests.
+
+When running a single or a set tests annotated with the `@QuarkusTest` annotation the Quarkus test extension will start Quarkus. Quarkus 
+will then remain running for the duration of the test run. This makes testing very fast, because Quarkus is only started once.
+
+#### Integration tests with Testcontainer and REST-assured
+
+[REST-assured](http://rest-assured.io) is a popular testframework for testing and validating REST services that brings the the simplicity
+of dynamic languages into the Java domain.
+
+To ease making HTTP requests to the containerized application, REST-assured provides specifications to reuse response expectations and/or
+request parameters for different tests. The `RequestSpecBuilder` is used to define the dynamic port of the application for all requests only
+once.
+
+GreetResourceIT - Quarkus tests for the GreetResource
+```java
+@QuarkusTest
+class GreetResourceQuarkusIT {
+
+  private static RequestSpecification requestSpecification;
+
+  @BeforeEach
+  void setUpUri() {
+    Config config = ConfigProvider.getConfig();
+    Integer testPort = config.getValue("quarkus.http.test-port", Integer.class);
+
+    requestSpecification = new RequestSpecBuilder()
+        .setPort(testPort)
+        .build();
+
+    RestAssured.given(requestSpecification)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("{ \"greeting\" : \"Hello\" }")
+        .when()
+        .put("/api/greet/greeting")
+        .then()
+        .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+  }
+
+  @Test
+  void greetTheWorld() {
+    RestAssured.given(requestSpecification)
+        .accept(MediaType.APPLICATION_JSON)
+        .when()
+        .get("/api/greet")
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("message", Matchers.equalTo("Hello World!"));
   }
 }
 ```
