@@ -15,7 +15,7 @@
  */
 package de.openknowledge.projects.greet;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
@@ -39,12 +39,7 @@ import javax.ws.rs.core.UriBuilder;
 public class GreetResourceHealthCheck implements HealthCheck {
 
   @Inject
-  @ConfigProperty(name = "quarkus.http.port")
-  private Integer port;
-
-  @Inject
-  @ConfigProperty(name = "quarkus.http.root-path")
-  private String contextRoot;
+  private Config config;
 
   @Override
   public HealthCheckResponse call() {
@@ -53,7 +48,7 @@ public class GreetResourceHealthCheck implements HealthCheck {
     Response response = ClientBuilder.newClient()
         .target(getResourceUri())
         .request()
-        .header("ORIGIN", String.format("%s:%d", "localhost", port))
+        .header("ORIGIN", String.format("%s:%d", "localhost", getPort()))
         .options();
 
     boolean up = Response.Status.OK.equals(response.getStatusInfo().toEnum());
@@ -68,12 +63,28 @@ public class GreetResourceHealthCheck implements HealthCheck {
   }
 
   private URI getResourceUri() {
-    return UriBuilder.fromPath(contextRoot)
+    return UriBuilder.fromPath(config.getValue("quarkus.http.root-path", String.class))
         .path(GreetApplication.class.getAnnotation(ApplicationPath.class).value())
         .path(GreetResource.class.getAnnotation(Path.class).value())
         .scheme("http")
         .host("localhost")
-        .port(port)
+        .port(getPort())
         .build();
+  }
+
+  private Integer getPort() {
+    return getQuarkusProfile().equals("test") ? getQuarkusHttpTestPort() : getQuarkusHttpPort();
+  }
+
+  private String getQuarkusProfile() {
+    return config.getValue("quarkus.profile", String.class);
+  }
+
+  private Integer getQuarkusHttpTestPort() {
+    return config.getValue("quarkus.http.test-port", Integer.class);
+  }
+
+  private Integer getQuarkusHttpPort() {
+    return config.getValue("quarkus.http.port", Integer.class);
   }
 }
