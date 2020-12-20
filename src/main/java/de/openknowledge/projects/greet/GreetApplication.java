@@ -28,7 +28,7 @@ import javax.ws.rs.core.Application;
 /**
  * JAX-RS Activator
  */
-@ApplicationPath("/api")
+@ApplicationPath("/")
 @OpenAPIDefinition(info =
 @Info(title = "Greeting API", description = "Provides access to the API operations", version = "1.0.0",
     license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html")),

@@ -107,18 +107,18 @@ request for changing the greeting itself. The response is encoded using JSON.
 
 Try the application
 ```shell script
-curl -X GET http://localhost:8080/api/greet
+curl -X GET http://localhost:8080/greet
 {"message":"Hello World!"}
 
-curl -X GET http://localhost:8080/api/greet/Stephan
+curl -X GET http://localhost:8080/greet/Stephan
 {"message":"Hello Stephan!"}
 
-curl -X PUT -H "Content-Type: application/json" -d '{"greeting" : "Hola"}' http://localhost:8080/api/greet/greeting
+curl -X PUT -H "Content-Type: application/json" -d '{"greeting" : "Hola"}' http://localhost:8080/greet/greeting
 
-curl -X GET http://localhost:8080/api/greet/greeting
+curl -X GET http://localhost:8080/greet/greeting
 {"greeting":"Hola"}
 
-curl -X GET http://localhost:8080/api/greet/Max
+curl -X GET http://localhost:8080/greet/Max
 {"message":"Hola Max!"}
 ```
 
@@ -210,7 +210,7 @@ class GreetResourceIT extends AbstractIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .body("{ \"greeting\" : \"Hello\" }")
         .when()
-        .put("/api/greet/greeting")
+        .put("/greet/greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }
@@ -220,7 +220,7 @@ class GreetResourceIT extends AbstractIntegrationTest {
     RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/api/greet")
+        .get("/greet")
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -289,7 +289,7 @@ public class GreetingCucumberSteps extends AbstractIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .body(new GreetingDTO(greeting))
         .when()
-        .put("/api/greet/greeting")
+        .put("/greet/greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }
@@ -299,7 +299,7 @@ public class GreetingCucumberSteps extends AbstractIntegrationTest {
     response = RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/api/greet");
+        .get("/greet");
   }
 
   @When("a user wants to greet {string}")
@@ -308,7 +308,7 @@ public class GreetingCucumberSteps extends AbstractIntegrationTest {
         .accept(MediaType.APPLICATION_JSON)
         .pathParam("name", name)
         .when()
-        .get("/api/greet/{name}");
+        .get("/greet/{name}");
   }
 
   @Then("the message is {string}")

@@ -17,6 +17,7 @@ package de.openknowledge.projects.greet;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +46,15 @@ class GreetResourceIT extends AbstractIntegrationTest {
     requestSpecification = new RequestSpecBuilder()
         .setPort(APPLICATION.getFirstMappedPort())
         .build();
+  }
 
+  @BeforeEach
+  void setGreetingToHello() {
     RestAssured.given(requestSpecification)
         .contentType(MediaType.APPLICATION_JSON)
         .body("{ \"greeting\" : \"Hello\" }")
         .when()
-        .put("/api/greet/greeting")
+        .put("/greet/greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }
@@ -61,7 +65,7 @@ class GreetResourceIT extends AbstractIntegrationTest {
         .accept(MediaType.APPLICATION_JSON)
         .pathParam("name", "Stephan")
         .when()
-        .get("/api/greet/{name}")
+        .get("/greet/{name}")
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -73,7 +77,7 @@ class GreetResourceIT extends AbstractIntegrationTest {
     RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/api/greet")
+        .get("/greet")
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +89,7 @@ class GreetResourceIT extends AbstractIntegrationTest {
     RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/api/greet/greeting")
+        .get("/greet/greeting")
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +102,7 @@ class GreetResourceIT extends AbstractIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .body("{ \"greeting\" : \"Hello\" }")
         .when()
-        .put("/api/greet/greeting")
+        .put("/greet/greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }

@@ -50,7 +50,7 @@ public class GreetingCucumberSteps extends AbstractIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .body(new GreetingDTO(greeting))
         .when()
-        .put("/api/greet/greeting")
+        .put("/greet/greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }
@@ -60,7 +60,7 @@ public class GreetingCucumberSteps extends AbstractIntegrationTest {
     response = RestAssured.given(requestSpecification)
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/api/greet");
+        .get("/greet");
   }
 
   @When("a user wants to greet {string}")
@@ -69,7 +69,7 @@ public class GreetingCucumberSteps extends AbstractIntegrationTest {
         .accept(MediaType.APPLICATION_JSON)
         .pathParam("name", name)
         .when()
-        .get("/api/greet/{name}");
+        .get("/greet/{name}");
   }
 
   @Then("the message is {string}")

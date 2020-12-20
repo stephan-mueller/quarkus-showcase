@@ -45,13 +45,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{url}}/api/greet/greeting",
+					"raw": "http://{{url}}/greet/greeting",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						"greeting"
 					]
@@ -104,13 +103,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{url}}/api/greet/",
+					"raw": "http://{{url}}/greet/",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						""
 					]
@@ -158,13 +156,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{url}}/api/greet/greeting",
+					"raw": "http://{{url}}/greet/greeting",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						"greeting"
 					]
@@ -217,13 +214,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{url}}/api/greet/:name",
+					"raw": "http://{{url}}/greet/:name",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						":name"
 					],
@@ -278,13 +274,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{url}}/api/greet/greeting",
+					"raw": "http://{{url}}/greet/greeting",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						"greeting"
 					]
@@ -337,13 +332,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{url}}/api/greet/:name",
+					"raw": "http://{{url}}/greet/:name",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						":name"
 					],
@@ -398,13 +392,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{url}}/api/greet/greeting",
+					"raw": "http://{{url}}/greet/greeting",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						"greeting"
 					]
@@ -457,13 +450,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{url}}/api/greet/:name",
+					"raw": "http://{{url}}/greet/:name",
 					"protocol": "http",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
 						"greet",
 						":name"
 					],
