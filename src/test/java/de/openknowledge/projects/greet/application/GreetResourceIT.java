@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package de.openknowledge.projects.greet;
+package de.openknowledge.projects.greet.application;
 
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
+import de.openknowledge.projects.greet.AbstractIntegrationTest;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
@@ -35,18 +35,18 @@ import io.restassured.specification.RequestSpecification;
 /**
  * Integration test for the resource {@link GreetResource}.
  */
-@QuarkusTest
-class GreetResourceQuarkusIT {
+class GreetResourceIT extends AbstractIntegrationTest {
+
+  private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
 
   private static RequestSpecification requestSpecification;
 
   @BeforeAll
   static void setUpUri() {
-    Config config = ConfigProvider.getConfig();
-    Integer testPort = config.getValue("quarkus.http.test-port", Integer.class);
+    APPLICATION.withLogConsumer(new Slf4jLogConsumer(LOG));
 
     requestSpecification = new RequestSpecBuilder()
-        .setPort(testPort)
+        .setPort(APPLICATION.getFirstMappedPort())
         .build();
   }
 

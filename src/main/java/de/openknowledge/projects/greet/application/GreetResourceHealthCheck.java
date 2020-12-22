@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package de.openknowledge.projects.greet;
+package de.openknowledge.projects.greet.application;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.health.HealthCheck;

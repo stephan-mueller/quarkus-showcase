@@ -32,7 +32,7 @@ import java.time.Duration;
  */
 class GreetPostmanIT extends AbstractIntegrationTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanIT.class);
 
   private static final GenericContainer<?> NEWMAN = new GenericContainer<>("postman/newman:5.1.0-alpine")
       .withNetwork(NETWORK)

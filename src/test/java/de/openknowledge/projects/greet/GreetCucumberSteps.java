@@ -15,6 +15,8 @@
  */
 package de.openknowledge.projects.greet;
 
+import de.openknowledge.projects.greet.application.GreetingDTO;
+
 import org.hamcrest.Matchers;
 
 import javax.ws.rs.core.MediaType;

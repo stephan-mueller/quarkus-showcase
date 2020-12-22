@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package de.openknowledge.projects.greet;
+package de.openknowledge.projects.greet.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -21,21 +21,29 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test class for the DTO {@link GreetDTO}.
+ * Test class for the DTO {@link GreetingDTO}.
  */
-class GreetDTOTest {
+class GreetingDTOTest {
 
   @Test
   void instantiationShouldFailForMissingValue() {
     assertThatNullPointerException()
-        .isThrownBy(() -> new GreetDTO(null))
-        .withMessage("message must not be null")
+        .isThrownBy(() -> new GreetingDTO(null))
+        .withMessage("greeting must not be null")
         .withNoCause();
   }
 
   @Test
   void instantiationShouldSucceed() {
-    GreetDTO greet = new GreetDTO("Hello Stephan!");
-    assertThat(greet.getMessage()).isEqualTo("Hello Stephan!");
+    GreetingDTO greeting = new GreetingDTO();
+    greeting.setGreeting("Hola");
+    assertThat(greeting.getGreeting()).isEqualTo("Hola");
+  }
+
+  @Test
+  void setGreeting() {
+    GreetingDTO greeting = new GreetingDTO();
+    greeting.setGreeting("Hola");
+    assertThat(greeting.getGreeting()).isEqualTo("Hola");
   }
 }
