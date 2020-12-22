@@ -17,8 +17,8 @@ Docker image using Spotify's `dockerfile-maven-plugin` during the package phase.
 **Notable Features:**
 * Dockerfiles for runnable JAR & Native Executable 
 * Integration of MP Health, MP Metrics and MP OpenAPI
-* Testcontainer tests with Rest-Assured, Cucumber and Postman/newman
-* Quarkus tests with Rest-Assured
+* Quarkus tests with Rest-Assured and Postman/newman
+* Testcontainers with Rest-Assured and Cucumber
 * Code-Coverage for Testcontainer tests
 * [CircleCI](https://circleci.com) Integration
 * [Sonarcloud](https://sonarcloud.io) Integration
@@ -150,16 +150,108 @@ curl -s -X GET http://localhost:8080/openapi
 curl -H 'Accept: application/json' -X GET http://localhost:8080/openapi
 ```
 
-### Testcontainer tests with REST-assured, Cucumber and Postman/Newman
+### Integration tests with QuarkusTest, REST-assured, Cucumber and Postman/Newman
 
-For the application a set of integration tests is provided. The tests bases on Testcontainers combined with other testing frameworks like 
-REST-assured, Cucumber and Postman/Newman. The docker container for the application is build by the `dockerfile-maven-plugin` during the 
+For the application a set of integration tests is provided. The tests bases on `@QuarkusTest` combined with other testing frameworks like 
+REST-assured and Postman/Newman.
+
+When running a single or a set tests annotated with `@QuarkusTest` the Quarkus test extension is configured for the test, which starts 
+Quarkus with profile `test`. Quarkus will then remain running for the duration of the test run. This makes testing very fast, because 
+Quarkus is only started once.
+
+
+#### Integration tests with Quarkus-Test and REST-assured
+
+[REST-assured](http://rest-assured.io) is a popular testframework for testing and validating REST services that brings the the simplicity 
+of dynamic languages into the Java domain. 
+
+GreetResourceIT - Integration tests for the GreetResource
+```java
+@QuarkusTest
+@TestHTTPEndpoint(GreetResource.class)
+class GreetResourceIT {
+
+  @Test
+  void greetTheWorld() {
+    RestAssured.given()
+        .accept(MediaType.APPLICATION_JSON)
+        .when()
+        .get("/api/greet")
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("message", Matchers.equalTo("Hello World!"));
+  }
+}
+```
+
+
+#### API Tests with Testcontainers and Postman/Newman
+
+Postman is an popular API client that supports automated API testing. Test collections developed in Postman can be exported and integrated 
+with your CI/CD pipeline by using [Newman](https://github.com/postmanlabs/newman), Postman's command line Collection Runner. 
+
+Newman allows you to run and test a Postman Collection directly from the command line. It is built with extensibility in mind so that it 
+can easily integrate it with continuous integration servers, build systems and even Testcontainers.
+
+To automate Postman test collections with Testcontainers the newman docker image is required. The collection and the environment file has 
+to be copied to the docker image, and a file system bind has to be configured, to be able to access the test reports.
+
+**IMPORTANT I**: The newman container is started and stopped for the execution of a single command - running the collection. To prevent that 
+the containers is stopped before the test collection is executed, a `OneShotStartupCheckStrategy` with a timeout of 10 seconds has to be 
+configured for the newman container.
+
+**IMPORTANT II**: If you want to access a application running on the testcontainer host system from a testcontainer, the host ports have 
+to be exposed. To configure Testcontainers to expose ports from the host system you have to call
+`Testcontainers.exposeHostPorts(localServerPort);`.  
+
+GreetPostmanIT - Newman container that runs a Postman collection against the containerized application.
+```java
+@QuarkusTest
+class GreetPostmanQuarkusIT {
+
+  private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanQuarkusIT.class);
+
+  private static final GenericContainer<?> NEWMAN = new GenericContainer<>("postman/newman:5.1.0-alpine")
+      .withCopyFileToContainer(MountableFile.forClasspathResource("postman/hello-world.postman_collection.json"),
+                               "/etc/newman/hello-world.postman_collection.json")
+      .withCopyFileToContainer(MountableFile.forClasspathResource("postman/hello-world.postman_environment.json"),
+                               "/etc/newman/hello-world.postman_environment.json")
+      .withFileSystemBind("target/postman/reports", "/etc/newman/reports", BindMode.READ_WRITE)
+      .withStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(10)));
+
+  @BeforeAll
+  static void exposeTestPort() {
+    Config config = ConfigProvider.getConfig();
+    Integer testPort = config.getValue("quarkus.http.test-port", Integer.class);
+    Testcontainers.exposeHostPorts(testPort);
+  }
+
+  @Test
+  void run() {
+    NEWMAN.withCommand("run", "hello-world.postman_collection.json",
+                       "--environment=hello-world.postman_environment.json",
+                       "--reporters=cli,junit",
+                       "--reporter-junit-export=reports/hello-world.newman-report.xml");
+    NEWMAN.start();
+
+    LOG.info(NEWMAN.getLogs());
+
+    assertThat(NEWMAN.getCurrentContainerInfo().getState().getExitCode()).isZero();
+  }
+}
+```
+
+
+### Testcontainers with REST-assured and Cucumber
+
+Due to missing support for Cucumber in combination with `@QuarkusTest`, the cucumber tests has to be run with as Testcontainers test. The docker container for the application is build by the `dockerfile-maven-plugin` during the
 `package` phase.
 
-To improve the runtime of the testcontainer tests by avoid starting and stopping the container for every test class, the 
+To improve the runtime of the testcontainer tests by avoid starting and stopping the container for every test class, the
 [singleton container](https://www.Testcontainers.org/test_framework_integration/manual_lifecycle_control/) pattern is used.
 
-The container is started only once when the base class is loaded. The container can then be used by all inheriting test classes. At the end 
+The container is started only once when the base class is loaded. The container can then be used by all inheriting test classes. At the end
 of the test suite the Ryuk container that is started by Testcontainers core will take care of stopping the singleton container.
 
 AbstractIntegrationTest - Superclass for all Testcontainers tests providing the containerized application
@@ -182,59 +274,12 @@ public abstract class AbstractIntegrationTest {
 }
 ```  
 
-#### Integration tests with Testcontainer and REST-assured
 
-[REST-assured](http://rest-assured.io) is a popular testframework for testing and validating REST services that brings the the simplicity 
-of dynamic languages into the Java domain. 
+#### Acceptance tests with Testcontainers, REST-assured and Cucumber
 
-To ease making HTTP requests to the containerized application, REST-assured provides specifications to reuse response expectations and/or 
-request parameters for different tests. The `RequestSpecBuilder` is used to define the dynamic port of the application for all requests only 
-once. 
-
-GreetResourceIT - Integration tests for the GreetResource
-```java
-class GreetResourceIT extends AbstractIntegrationTest {
-
-  private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
-
-  private static RequestSpecification requestSpecification;
-
-  @BeforeAll
-  static void setUpUri() {
-    APPLICATION.withLogConsumer(new Slf4jLogConsumer(LOG));
-
-    requestSpecification = new RequestSpecBuilder()
-        .setPort(APPLICATION.getFirstMappedPort())
-        .build();
-
-    RestAssured.given(requestSpecification)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body("{ \"greeting\" : \"Hello\" }")
-        .when()
-        .put("/greet/greeting")
-        .then()
-        .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-  }
-
-  @Test
-  void greetTheWorld() {
-    RestAssured.given(requestSpecification)
-        .accept(MediaType.APPLICATION_JSON)
-        .when()
-        .get("/greet")
-        .then()
-        .statusCode(Response.Status.OK.getStatusCode())
-        .contentType(MediaType.APPLICATION_JSON)
-        .body("message", Matchers.equalTo("Hello World!"));
-  }
-}
-```
-
-#### Acceptance tests with Testcontainer, REST-assured and Cucumber
-
-[Cucumber](https://github.com/cucumber/cucumber-jvm) is one of the most popular tools that supports Behaviour-Driven Development(BDD) for 
-the Java language. Cucumber reads executable specifications written in natural language and validates that the software does what those 
-specifications say. The specifications consist of several examples or scenarios - which is why this approach is known as 
+[Cucumber](https://github.com/cucumber/cucumber-jvm) is one of the most popular tools that supports Behaviour-Driven Development(BDD) for
+the Java language. Cucumber reads executable specifications written in natural language and validates that the software does what those
+specifications say. The specifications consist of several examples or scenarios - which is why this approach is known as
 [Specification by Example](https://en.wikipedia.org/wiki/Specification_by_example).
 
 Greet.feature - Acceptance tests in natural language (Gherkin syntax)
@@ -267,7 +312,7 @@ public class GreetingCucumberIT {
 }
 ```
 
-Due to its BDD-oriented nature, REST-assured seamlessly integrates with Cucumber to implement acceptance tests for RESTful APIs. To 
+Due to its BDD-oriented nature, REST-assured seamlessly integrates with Cucumber to implement acceptance tests for RESTful APIs. To
 
 GreetCucumberSteps - Step definitions matching the steps in the feature file
 ```java
@@ -349,107 +394,4 @@ Scenario Outline: Greet someone          # src/test/resources/it/feature/Greet.f
   Then the message is "Moin Stephan!"    # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_message_is(java.lang.String)
 
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.916 s - in de.openknowledge.projects.greet.GreetCucumberIT
-```
-
-#### API Tests with Testcontainer and Postman/Newman
-
-Postman is an popular API client that supports automated API testing. Test collections developed in Postman can be exported and integrated 
-with your CI/CD pipeline by using [Newman](https://github.com/postmanlabs/newman), Postman's command line Collection Runner. 
-
-Newman allows you to run and test a Postman Collection directly from the command line. It is built with extensibility in mind so that it 
-can easily integrate it with continuous integration servers, build systems and even Testcontainers.
-
-To automate Postman test collections with Testcontainers the newman docker image is required. The collection and the environment file has 
-to be copied to the docker image, and a file system bind has to be configured, to be able to access the test reports.
-
-**IMPORTANT**: The newman container is started and stopped for the execution of a single command - running the collection. To prevent that 
-the containers is stopped before the test collection is executed, a `OneShotStartupCheckStrategy` with a timeout of 5 to 10 seconds has to 
-be configured for the newman container.
-
-GreetPostmanIT - Newman container that runs a Postman collection against the containerized application.
-```java
-class GreetPostmanIT extends AbstractIntegrationTest {
-
-  private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
-
-  private static final GenericContainer<?> NEWMAN = new GenericContainer<>("postman/newman:5.1.0-alpine")
-      .withNetwork(NETWORK)
-      .dependsOn(APPLICATION)
-      .withCopyFileToContainer(MountableFile.forClasspathResource("postman/hello-world.postman_collection.json"),
-                               "/etc/newman/hello-world.postman_collection.json")
-      .withCopyFileToContainer(MountableFile.forClasspathResource("postman/hello-world.postman_environment.json"),
-                               "/etc/newman/hello-world.postman_environment.json")
-      .withFileSystemBind("target/postman/reports", "/etc/newman/reports", BindMode.READ_WRITE)
-      .withStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(5)));
-
-  @Test
-  void run() {
-    NEWMAN.withCommand("run", "hello-world.postman_collection.json",
-                       "--environment=hello-world.postman_environment.json",
-                       "--reporters=cli,junit",
-                       "--reporter-junit-export=reports/hello-world.newman-report.xml");
-    NEWMAN.start();
-
-    LOG.info(NEWMAN.getLogs());
-
-    assertThat(NEWMAN.getCurrentContainerInfo().getState().getExitCode()).isZero();
-  }
-}
-```
-
-
-### Quarkus tests with REST-assured
-
-In addition to the testcontainer based tests a set of Quarkus tests is provided to demonstrate a Quarkus-only solution to implement and run
-integration tests.
-
-When running a single or a set tests annotated with the `@QuarkusTest` annotation the Quarkus test extension will start Quarkus. Quarkus 
-will then remain running for the duration of the test run. This makes testing very fast, because Quarkus is only started once.
-
-#### Integration tests with Testcontainer and REST-assured
-
-[REST-assured](http://rest-assured.io) is a popular testframework for testing and validating REST services that brings the the simplicity
-of dynamic languages into the Java domain.
-
-To ease making HTTP requests to the containerized application, REST-assured provides specifications to reuse response expectations and/or
-request parameters for different tests. The `RequestSpecBuilder` is used to define the dynamic port of the application for all requests only
-once.
-
-GreetResourceIT - Quarkus tests for the GreetResource
-```java
-@QuarkusTest
-class GreetResourceQuarkusIT {
-
-  private static RequestSpecification requestSpecification;
-
-  @BeforeEach
-  void setUpUri() {
-    Config config = ConfigProvider.getConfig();
-    Integer testPort = config.getValue("quarkus.http.test-port", Integer.class);
-
-    requestSpecification = new RequestSpecBuilder()
-        .setPort(testPort)
-        .build();
-
-    RestAssured.given(requestSpecification)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body("{ \"greeting\" : \"Hello\" }")
-        .when()
-        .put("/api/greet/greeting")
-        .then()
-        .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-  }
-
-  @Test
-  void greetTheWorld() {
-    RestAssured.given(requestSpecification)
-        .accept(MediaType.APPLICATION_JSON)
-        .when()
-        .get("/api/greet")
-        .then()
-        .statusCode(Response.Status.OK.getStatusCode())
-        .contentType(MediaType.APPLICATION_JSON)
-        .body("message", Matchers.equalTo("Hello World!"));
-  }
-}
 ```

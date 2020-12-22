@@ -15,59 +15,42 @@
  */
 package de.openknowledge.projects.greet.application;
 
-import de.openknowledge.projects.greet.AbstractIntegrationTest;
-
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.specification.RequestSpecification;
 
 /**
  * Integration test for the resource {@link GreetResource}.
  */
-class GreetResourceIT extends AbstractIntegrationTest {
-
-  private static final Logger LOG = LoggerFactory.getLogger(GreetResourceIT.class);
-
-  private static RequestSpecification requestSpecification;
-
-  @BeforeAll
-  static void setUpUri() {
-    APPLICATION.withLogConsumer(new Slf4jLogConsumer(LOG));
-
-    requestSpecification = new RequestSpecBuilder()
-        .setPort(APPLICATION.getFirstMappedPort())
-        .build();
-  }
+@QuarkusTest
+@TestHTTPEndpoint(GreetResource.class)
+class GreetResourceIT {
 
   @BeforeEach
   void setGreetingToHello() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .contentType(MediaType.APPLICATION_JSON)
         .body("{ \"greeting\" : \"Hello\" }")
         .when()
-        .put("/greet/greeting")
+        .put("greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }
 
   @Test
   void greet() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .pathParam("name", "Stephan")
         .when()
-        .get("/greet/{name}")
+        .get("{name}")
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -76,10 +59,10 @@ class GreetResourceIT extends AbstractIntegrationTest {
 
   @Test
   void greetTheWorld() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/greet")
+        .get()
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -88,10 +71,10 @@ class GreetResourceIT extends AbstractIntegrationTest {
 
   @Test
   void getGreeting() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
-        .get("/greet/greeting")
+        .get("greeting")
         .then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
@@ -100,11 +83,11 @@ class GreetResourceIT extends AbstractIntegrationTest {
 
   @Test
   void updateGreeting() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .contentType(MediaType.APPLICATION_JSON)
         .body("{ \"greeting\" : \"Hello\" }")
         .when()
-        .put("/greet/greeting")
+        .put("greeting")
         .then()
         .statusCode(Response.Status.NO_CONTENT.getStatusCode());
   }

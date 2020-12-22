@@ -16,34 +16,24 @@
 package de.openknowledge.projects.greet;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.response.ValidatableResponse;
-import io.restassured.specification.RequestSpecification;
 
 /**
  * Integration test for the health checks.
  */
-class GreetHealthCheckIT extends AbstractIntegrationTest {
-
-  private static RequestSpecification requestSpecification;
-
-  @BeforeAll
-  static void setUpUri() {
-    requestSpecification = new RequestSpecBuilder()
-        .setPort(APPLICATION.getFirstMappedPort())
-        .build();
-  }
+@QuarkusTest
+class GreetHealthCheckIT {
 
   @Test
   void checkHealth() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
         .get("/health")
@@ -55,7 +45,7 @@ class GreetHealthCheckIT extends AbstractIntegrationTest {
 
   @Test
   void checkLiveness() {
-    ValidatableResponse response = RestAssured.given(requestSpecification)
+    ValidatableResponse response = RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
         .get("/health/live")
@@ -70,7 +60,7 @@ class GreetHealthCheckIT extends AbstractIntegrationTest {
 
   @Test
   void checkReadiness() {
-    ValidatableResponse response = RestAssured.given(requestSpecification)
+    ValidatableResponse response = RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
         .get("/health/ready")

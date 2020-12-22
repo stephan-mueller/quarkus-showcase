@@ -16,34 +16,23 @@
 package de.openknowledge.projects.greet;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.specification.RequestSpecification;
 
 /**
  * Integration test for the application metrics.
  */
-class GreetMetricsIT extends AbstractIntegrationTest {
-
-
-  private static RequestSpecification requestSpecification;
-
-  @BeforeAll
-  static void setUpUri() {
-    requestSpecification = new RequestSpecBuilder()
-        .setPort(APPLICATION.getFirstMappedPort())
-        .build();
-  }
+@QuarkusTest
+class GreetMetricsIT {
 
   @Test
   void checkApplicationMetrics() {
-    RestAssured.given(requestSpecification)
+    RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
         .get("/metrics/application")

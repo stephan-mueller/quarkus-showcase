@@ -17,9 +17,13 @@ package de.openknowledge.projects.greet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy;
@@ -27,22 +31,30 @@ import org.testcontainers.utility.MountableFile;
 
 import java.time.Duration;
 
+import io.quarkus.test.junit.QuarkusTest;
+
 /**
  * Postman test runner for the application.
  */
-class GreetPostmanIT extends AbstractIntegrationTest {
+@QuarkusTest
+class GreetPostmanIT {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanIT.class);
 
   private static final GenericContainer<?> NEWMAN = new GenericContainer<>("postman/newman:5.1.0-alpine")
-      .withNetwork(NETWORK)
-      .dependsOn(APPLICATION)
       .withCopyFileToContainer(MountableFile.forClasspathResource("postman/hello-world.postman_collection.json"),
                                "/etc/newman/hello-world.postman_collection.json")
       .withCopyFileToContainer(MountableFile.forClasspathResource("postman/hello-world.postman_environment.json"),
                                "/etc/newman/hello-world.postman_environment.json")
       .withFileSystemBind("target/postman/reports", "/etc/newman/reports", BindMode.READ_WRITE)
       .withStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(5)));
+
+  @BeforeAll
+  static void exposeTestPort() {
+    Config config = ConfigProvider.getConfig();
+    Integer testPort = config.getValue("quarkus.http.test-port", Integer.class);
+    Testcontainers.exposeHostPorts(testPort);
+  }
 
   @Test
   void run() {
