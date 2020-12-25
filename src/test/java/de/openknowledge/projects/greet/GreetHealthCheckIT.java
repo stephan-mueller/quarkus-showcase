@@ -16,11 +16,15 @@
 package de.openknowledge.projects.greet;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
@@ -29,7 +33,13 @@ import io.restassured.response.ValidatableResponse;
  * Integration test for the health checks.
  */
 @QuarkusTest
+@QuarkusTestResource(DatabaseTestResource.class)
 class GreetHealthCheckIT {
+
+  @BeforeAll
+  static void waitForHealthChecksToBeUp() throws InterruptedException {
+    TimeUnit.SECONDS.sleep(1);
+  }
 
   @Test
   void checkHealth() {
@@ -67,6 +77,9 @@ class GreetHealthCheckIT {
         .then()
         .contentType(MediaType.APPLICATION_JSON)
         .statusCode(Response.Status.OK.getStatusCode())
+        .body("status", Matchers.equalTo("UP"));
+
+    response.rootPath("checks.find{ it.name == 'Datasource' }")
         .body("status", Matchers.equalTo("UP"));
 
     response.rootPath("checks.find{ it.name == 'GreetResource' }")

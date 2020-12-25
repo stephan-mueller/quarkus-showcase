@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+
+  database:
+    image: postgres:12-alpine
+    ports:
+    - 5432:5432
+    environment:
+      POSTGRES_DB: greeting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  application:
+    image: quarkus-showcase:latest
+    ports:
+    - 8080:8080
+    depends_on:
+    - database
+    environment:
+      POSTGRES_URL: jdbc:postgresql://database:5432/greeting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres

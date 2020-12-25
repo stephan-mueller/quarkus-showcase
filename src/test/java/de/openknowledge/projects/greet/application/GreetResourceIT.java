@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -30,6 +31,7 @@ import io.restassured.RestAssured;
  * Integration test for the resource {@link GreetResource}.
  */
 @QuarkusTest
+@QuarkusTestResource(DatabaseTestResource.class)
 @TestHTTPEndpoint(GreetResource.class)
 class GreetResourceIT {
 

@@ -15,29 +15,46 @@
  */
 package de.openknowledge.projects.greet;
 
+import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 /**
  * Provides testcontainers for integration tests.
  */
-public abstract class AbstractIntegrationTest {
+public abstract class AbstractTestcontainersIT {
 
   protected static final String NETWORK_ALIAS_APPLICATION = "application";
 
   protected static final Network NETWORK = Network.newNetwork();
 
+  protected static final PostgreSQLContainer<?> DATABASE = new PostgreSQLContainer<>("postgres:12-alpine")
+      .withNetwork(NETWORK)
+      .withNetworkAliases("DATABASE")
+      .withDatabaseName("greeting-test")
+      .withUsername("postgres")
+      .withPassword("postgres")
+      .waitingFor(
+          Wait.forLogMessage(".*server started.*", 1)
+      );
+
   protected static final GenericContainer<?> APPLICATION = new GenericContainer<>("quarkus-showcase")
       .withExposedPorts(8080)
       .withNetwork(NETWORK)
       .withNetworkAliases(NETWORK_ALIAS_APPLICATION)
+      .dependsOn(DATABASE)
+      .withEnv("POSTGRES_URL","jdbc:postgresql://database:5432/greeting-test")
+      .withEnv("POSTGRES_USER","postgres")
+      .withEnv("POSTGRES_PASSWORD","postgres")
       .withEnv("JAVA_OPTS", "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-testcontainers/jacoco-testcontainers.exec")
       .withFileSystemBind("./target/jacoco-agent", "/jacoco-agent")
       .withFileSystemBind("./target/jacoco-testcontainers", "/jacoco-testcontainers")
       .waitingFor(Wait.forHealthcheck());
 
   static {
+    DATABASE.start();
     APPLICATION.start();
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> APPLICATION.getDockerClient().stopContainerCmd(APPLICATION.getContainerId()).withTimeout(10).exec()));

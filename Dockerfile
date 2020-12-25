@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:15-alpine
 
 RUN apk --no-cache add curl
 

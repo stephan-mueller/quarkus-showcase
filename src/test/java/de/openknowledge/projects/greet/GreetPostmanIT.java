@@ -37,6 +37,7 @@ import io.quarkus.test.junit.QuarkusTest;
  * Postman test runner for the application.
  */
 @QuarkusTest
+@QuarkusTestResource(DatabaseTestResource.class)
 class GreetPostmanIT {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanIT.class);

@@ -168,6 +168,7 @@ of dynamic languages into the Java domain.
 GreetResourceIT - Integration tests for the GreetResource
 ```java
 @QuarkusTest
+@QuarkusTestResource(DatabaseTestResource.class)
 @TestHTTPEndpoint(GreetResource.class)
 class GreetResourceIT {
 
@@ -208,6 +209,7 @@ to be exposed. To configure Testcontainers to expose ports from the host system 
 GreetPostmanIT - Newman container that runs a Postman collection against the containerized application.
 ```java
 @QuarkusTest
+@QuarkusTestResource(DatabaseTestResource.class)
 class GreetPostmanQuarkusIT {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanQuarkusIT.class);
@@ -254,21 +256,36 @@ To improve the runtime of the testcontainer tests by avoid starting and stopping
 The container is started only once when the base class is loaded. The container can then be used by all inheriting test classes. At the end
 of the test suite the Ryuk container that is started by Testcontainers core will take care of stopping the singleton container.
 
-AbstractIntegrationTest - Superclass for all Testcontainers tests providing the containerized application
+AbstractTestcontainersIT - Superclass for all Testcontainers tests providing the containerized application
 ```java
-public abstract class AbstractIntegrationTest {
+public abstract class AbstractTestcontainersIT {
 
   protected static final String NETWORK_ALIAS_APPLICATION = "application";
 
   protected static final Network NETWORK = Network.newNetwork();
 
+  protected static final PostgreSQLContainer<?> DATABASE = new PostgreSQLContainer<>("postgres:12-alpine")
+      .withNetwork(NETWORK)
+      .withNetworkAliases("DATABASE")
+      .withDatabaseName("greeting-test")
+      .withUsername("postgres")
+      .withPassword("postgres")
+      .waitingFor(
+          Wait.forLogMessage(".*server started.*", 1)
+      );
+
   protected static final GenericContainer<?> APPLICATION = new GenericContainer<>("quarkus-showcase")
       .withExposedPorts(8080)
       .withNetwork(NETWORK)
       .withNetworkAliases(NETWORK_ALIAS_APPLICATION)
+      .dependsOn(DATABASE)
+      .withEnv("POSTGRES_URL","jdbc:postgresql://database:5432/greeting-test")
+      .withEnv("POSTGRES_USER","postgres")
+      .withEnv("POSTGRES_PASSWORD","postgres")
       .waitingFor(Wait.forHealthcheck());
 
   static {
+    DATABASE.start();
     APPLICATION.start();
   }
 }
