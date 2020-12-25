@@ -11,8 +11,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
@@ -32,6 +32,7 @@
         <version.testcontainers>1.15.0</version.testcontainers>
         <version.cucumber>6.9.0</version.cucumber>
         <version.rest-assured>4.3.3</version.rest-assured>
+        <version.database-rider>1.21.0</version.database-rider>
 
         <version.jacoco>0.8.6</version.jacoco>
 
@@ -210,14 +211,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>15</source>
-                    <target>15</target>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -238,6 +231,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm-panache</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -383,6 +380,18 @@
             <artifactId>json-schema-validator</artifactId>
             <version>${version.rest-assured}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.database-rider</groupId>
+            <artifactId>rider-cdi</artifactId>
+            <version>${version.database-rider}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Jacoco -->

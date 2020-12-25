@@ -15,6 +15,8 @@
  */
 package de.openknowledge.projects.greet.application;
 
+import de.openknowledge.projects.greet.domain.Greeting;
+
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Metered;
@@ -28,6 +30,8 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -65,12 +69,12 @@ public class GreetResource {
   public Response greet(@Parameter(description = "name") @PathParam("name") final String name) {
     LOG.info("Greet {}", name);
 
-    GreetDTO message = new GreetDTO(service.getMessage(name));
+    GreetDTO greet = new GreetDTO(service.getGreet(name));
 
-    LOG.info("{}", message);
+    LOG.info("{}", greet);
 
     return Response.status(Response.Status.OK)
-        .entity(message)
+        .entity(greet)
         .build();
   }
 
@@ -94,6 +98,28 @@ public class GreetResource {
 
     return Response.status(Response.Status.OK)
         .entity(greeting)
+        .build();
+  }
+
+  @Path("response/{salutation}")
+  @GET
+  @Operation(operationId = "getResponse", description = "Get response")
+  @APIResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = GreetDTO.class)))
+  public Response getResponse(@PathParam("salutation") String salutation) {
+    LOG.info("Get response for salutation {}", salutation);
+
+    Optional<Greeting> optional = service.getResponse(salutation);
+    if (!optional.isPresent()) {
+      LOG.warn("No response to salutation {} found", salutation);
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    ResponseDTO response = new ResponseDTO(optional.get().getResponse());
+
+    LOG.info("Respond {} to salutation {}", response.getResponse(), salutation);
+
+    return Response.status(Response.Status.OK)
+        .entity(response)
         .build();
   }
 

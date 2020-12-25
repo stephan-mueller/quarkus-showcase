@@ -16,11 +16,15 @@
 package de.openknowledge.projects.greet.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-import org.assertj.core.api.Assertions;
+import de.openknowledge.projects.greet.domain.Greeting;
+import de.openknowledge.projects.greet.domain.GreetingRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.Optional;
 
 /**
  * Test class for the service {@link GreetingApplicationService}.
@@ -29,9 +33,12 @@ class GreetingApplicationServiceTest {
 
   private GreetingApplicationService service;
 
+  private GreetingRepository repository;
+
   @BeforeEach
   void setUp() {
-    service = new GreetingApplicationService("Hello");
+    repository = Mockito.mock(GreetingRepository.class);
+    service = new GreetingApplicationService("Hello", repository);
   }
 
   @Test
@@ -40,13 +47,19 @@ class GreetingApplicationServiceTest {
   }
 
   @Test
-  void updateGreeting() {
-    service.updateGreeting("Hola");
-    assertThat(service.getGreeting()).isEqualTo("Hola");
+  void getMessage() {
+    assertThat(service.getGreet("World")).isEqualTo("Hello World!");
   }
 
   @Test
-  void getMessage() {
-    assertThat(service.getMessage("World")).isEqualTo("Hello World!");
+  void getResponse() {
+    Mockito.doReturn(Optional.of(new Greeting("Marco", "Polo"))).when(repository).findBySalutation(Mockito.anyString());
+    assertThat(service.getResponse("Marco")).isInstanceOf(Optional.class);
+  }
+
+  @Test
+  void updateGreeting() {
+    service.updateGreeting("Hola");
+    assertThat(service.getGreeting()).isEqualTo("Hola");
   }
 }

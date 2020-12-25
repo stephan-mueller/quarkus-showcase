@@ -33,7 +33,7 @@ import io.restassured.specification.RequestSpecification;
 /**
  * Step Definitions for the cucumber test {@link GreetCucumberIT}.
  */
-public class GreetCucumberSteps extends AbstractIntegrationTest {
+public class GreetCucumberSteps extends AbstractTestcontainersIT {
 
   private RequestSpecification requestSpecification;
 
@@ -74,11 +74,34 @@ public class GreetCucumberSteps extends AbstractIntegrationTest {
         .get("/greet/{name}");
   }
 
+  @When("a user wants to get the response to {string}")
+  public void when_a_user_wants_to_get_the_response_to(final String salutation) {
+    response = RestAssured.given(requestSpecification)
+        .accept(MediaType.APPLICATION_JSON)
+        .pathParam("salutation", salutation)
+        .when()
+        .get("/greet/response/{salutation}");
+  }
+
   @Then("the message is {string}")
   public void then_the_message_is(final String message) {
     response.then()
         .statusCode(Response.Status.OK.getStatusCode())
         .contentType(MediaType.APPLICATION_JSON)
         .body("message", Matchers.equalTo(message));
+  }
+
+  @Then("the response is {string}")
+  public void then_the_response_is(final String response) {
+    this.response.then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("response", Matchers.equalTo(response));
+  }
+
+  @Then("the response is not found")
+  public void then_the_response_is_not_found() {
+    this.response.then()
+        .statusCode(Response.Status.NOT_FOUND.getStatusCode());
   }
 }

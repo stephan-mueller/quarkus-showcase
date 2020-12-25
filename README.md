@@ -17,8 +17,8 @@ Docker image using Spotify's `dockerfile-maven-plugin` during the package phase.
 **Notable Features:**
 * Dockerfiles for runnable JAR & Native Executable 
 * Integration of MP Health, MP Metrics and MP OpenAPI
-* Quarkus tests with Rest-Assured and Postman/newman
-* Testcontainers with Rest-Assured and Cucumber
+* Quarkus tests with Testcontainers, Rest-Assured, DbUnit (Database-Rider) and Postman/newman
+* Acceptance tests with Testcontainers, Rest-Assured and Cucumber
 * Code-Coverage for Testcontainer tests
 * [CircleCI](https://circleci.com) Integration
 * [Sonarcloud](https://sonarcloud.io) Integration
@@ -30,8 +30,9 @@ Before running the application it needs to be compiled and packaged using `Maven
 run via `docker`:
 
 ```shell script
+$ docker-compose up database
 $ mvn clean package
-$ docker run --rm -p 8080:8080 quarkus-showcase
+$ docker-compose up application
 ```
 
 If everything worked you can access the OpenAPI UI via [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui). In addition to
@@ -53,7 +54,7 @@ $ ${GRAALVM_HOME}/bin/gu install native-image
 To create a docker image with a native executable you have to build the application with the Maven profile `native` 
 ```shell script
 $ mvn clean package -Pnative
-$ docker run --rm -p 8080:8080 quarkus-showcase
+$ docker-compose up application
 ```
 
 **Please note:**
@@ -150,28 +151,100 @@ curl -s -X GET http://localhost:8080/openapi
 curl -H 'Accept: application/json' -X GET http://localhost:8080/openapi
 ```
 
-### Integration tests with QuarkusTest, REST-assured, Cucumber and Postman/Newman
+
+### Integration tests with QuarkusTest, Testcontainers, REST-assured, DbUnit, Cucumber and Postman/Newman
 
 For the application a set of integration tests is provided. The tests bases on `@QuarkusTest` combined with other testing frameworks like 
-REST-assured and Postman/Newman.
+REST-assured, DbUnit (Database-Rider) and Postman/Newman.
 
 When running a single or a set tests annotated with `@QuarkusTest` the Quarkus test extension is configured for the test, which starts 
 Quarkus with profile `test`. Quarkus will then remain running for the duration of the test run. This makes testing very fast, because 
 Quarkus is only started once.
 
+#### Integration tests with Quarkus-Test, Testcontainers and DbUnit (Database-Rider)
 
-#### Integration tests with Quarkus-Test and REST-assured
+[DbUnit](http://dbunit.sourceforge.net) is a JUnit extension targeted at database-driven projects that, among other things, puts the 
+database into a known state between test runs. [Database-Rider](https://github.com/database-rider/database-rider) integrates JUnit and 
+DbUnit through JUnit rules and, in case of CDI based tests, a CDI interceptor. The combination enables developers to prepare the database 
+state for testing through yaml, xml, json, xls or csv files. Most inspiration of Database Rider was taken from [Arquillian extension 
+persistence](https://docs.jboss.org/author/display/ARQ/Persistence.html).
+
+The best and easiest way to provide a real database for integration tests is to use Testcontainers (e.g. `PostgreSQLContainer`). To 
+integrate QuarkusTest with a Testcontainer Quarkus' notion of test resources can be used. Like described in the 
+[Blog Post of Gunnar Morling](https://www.morling.dev/blog/quarkus-and-testcontainers/) an implementation of the 
+`QuarkusTestResourceLifecycleManager` interface, which controls the resource’s lifecycle is a easy solution.
+
+_DatabaseTestResource - Postgres Testcontainer for the integration tests with Quarkus-Test._
+```java
+public class DatabaseTestResource implements QuarkusTestResourceLifecycleManager {
+
+  private static final PostgreSQLContainer<?> DATABASE = new PostgreSQLContainer<>("postgres:12-alpine")
+      .withDatabaseName("greeting-test")
+      .withUsername("postgres")
+      .withPassword("postgres");
+
+  @Override
+  public Map<String, String> start() {
+    DATABASE.start();
+    return Collections.singletonMap("quarkus.datasource.jdbc.url", DATABASE.getJdbcUrl());
+  }
+
+  @Override
+  public void stop() {
+    DATABASE.stop();
+  }
+}
+```
+
+To enable the test resource the `@QuarkusTestResource` annotation has to be used. In addition to that the `@DBRider` CDI interceptor 
+controls DbUnit to prepare and verify the database for each test case.  
+
+_GreetRepositoryIT - Integration tests for the GreetRepository_
+```java
+@QuarkusTest
+@QuarkusTestResource(DatabaseTestResource.class)
+@DBRider
+@DataSet(value = "greetings.yml", strategy = SeedStrategy.CLEAN_INSERT, skipCleaningFor = "flyway_schema_history")
+class GreetingRepositoryIT {
+
+  @Inject
+  private GreetingRepository repository;
+
+  @Test
+  void findBySalutationShouldReturnEmptyOptional() {
+    Optional<Greeting> optional = repository.findBySalutation("Polo");
+    Assertions.assertThat(!optional.isPresent()).isTrue();
+  }
+
+  @Test
+  void findBySalutationShouldReturnOptional() {
+    Optional<Greeting> optional = repository.findBySalutation("Marco");
+    Assertions.assertThat(optional.isPresent()).isTrue();
+
+    Greeting greeting = optional.get();
+    Assertions.assertThat(greeting.id).isEqualTo(1L);
+    Assertions.assertThat(greeting.getSalutation()).isEqualTo("Marco");
+    Assertions.assertThat(greeting.getResponse()).isEqualTo("Polo");
+  }
+}
+```
+
+#### Integration tests with Quarkus-Test, Testcontainers, REST-assured and DbUnit (Database-Rider)
 
 [REST-assured](http://rest-assured.io) is a popular testframework for testing and validating REST services that brings the the simplicity 
 of dynamic languages into the Java domain. 
 
-GreetResourceIT - Integration tests for the GreetResource
+_GreetResourceIT - Integration tests for the GreetResource_
 ```java
 @QuarkusTest
 @QuarkusTestResource(DatabaseTestResource.class)
 @TestHTTPEndpoint(GreetResource.class)
+@DBRider
+@DataSet(value = "greetings.yml", strategy = SeedStrategy.CLEAN_INSERT, skipCleaningFor = "flyway_schema_history")
 class GreetResourceIT {
 
+  ... 
+  
   @Test
   void greetTheWorld() {
     RestAssured.given()
@@ -183,9 +256,36 @@ class GreetResourceIT {
         .contentType(MediaType.APPLICATION_JSON)
         .body("message", Matchers.equalTo("Hello World!"));
   }
+  
+  ...
+
+  @Test
+  void getResponseShouldReturn200() {
+    RestAssured.given()
+        .accept(MediaType.APPLICATION_JSON)
+        .pathParam("salutation", "Marco")
+        .when()
+        .get("/response/{salutation}")
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("response", Matchers.equalTo("Polo"));
+  }
+
+  @Test
+  void getResponseShouldReturn404() {
+    RestAssured.given()
+        .accept(MediaType.APPLICATION_JSON)
+        .pathParam("salutation", "Polo")
+        .when()
+        .get("/response/{salutation}")
+        .then()
+        .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+  }
+  
+  ...
 }
 ```
-
 
 #### API Tests with Testcontainers and Postman/Newman
 
@@ -206,10 +306,12 @@ configured for the newman container.
 to be exposed. To configure Testcontainers to expose ports from the host system you have to call
 `Testcontainers.exposeHostPorts(localServerPort);`.  
 
-GreetPostmanIT - Newman container that runs a Postman collection against the containerized application.
+_GreetPostmanIT - Newman container that runs a Postman collection against the containerized application._
 ```java
 @QuarkusTest
 @QuarkusTestResource(DatabaseTestResource.class)
+@DBRider
+@DataSet(value = "greetings.yml", strategy = SeedStrategy.CLEAN_INSERT, skipCleaningFor = "flyway_schema_history")
 class GreetPostmanQuarkusIT {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanQuarkusIT.class);
@@ -244,11 +346,50 @@ class GreetPostmanQuarkusIT {
 }
 ```
 
+#### Acceptance tests with Testcontainers, REST-assured and Cucumber
 
-### Testcontainers with REST-assured and Cucumber
+[Cucumber](https://github.com/cucumber/cucumber-jvm) is one of the most popular tools that supports Behaviour-Driven Development(BDD) for
+the Java language. Cucumber reads executable specifications written in natural language and validates that the software does what those
+specifications say. The specifications consist of several examples or scenarios - which is why this approach is known as
+[Specification by Example](https://en.wikipedia.org/wiki/Specification_by_example).
 
-Due to missing support for Cucumber in combination with `@QuarkusTest`, the cucumber tests has to be run with as Testcontainers test. The docker container for the application is build by the `dockerfile-maven-plugin` during the
-`package` phase.
+_Greet.feature - Acceptance tests in natural language (Gherkin syntax)_
+```gherkin
+Feature: Greet
+
+  Scenario: Greet the world
+    Given a greeting "Hello"
+    When a user wants to greet
+    Then the message is "Hello World!"
+
+  Scenario Outline: Greet someone
+    Given a greeting "<greeting>"
+    When a user wants to greet "<name>"
+    Then the message is "<greeting> <name>!"
+
+    Examples:
+      | greeting | name      |
+      | Hola     | Christian |
+      | Hey      | Max       |
+      | Moin     | Stephan   |
+
+  Scenario Outline: Get response to salutation
+    When a user wants to get the response to "<salutation>"
+    Then the response is "<response>"
+
+    Examples:
+      | salutation | response |
+      | Marco      | Polo     |
+      | Ping       | Pong     |
+      | Moin       | Moin     |
+
+  Scenario: Get response to unknown salutation
+    When a user wants to get the response to "Polo"
+    Then the response is not found
+```
+
+Due to missing support for Cucumber in combination with `@QuarkusTest`, the cucumber tests has to be run with as Testcontainers test. 
+The docker container for the application is build by the `dockerfile-maven-plugin` during the `package` phase.
 
 To improve the runtime of the testcontainer tests by avoid starting and stopping the container for every test class, the
 [singleton container](https://www.Testcontainers.org/test_framework_integration/manual_lifecycle_control/) pattern is used.
@@ -256,7 +397,7 @@ To improve the runtime of the testcontainer tests by avoid starting and stopping
 The container is started only once when the base class is loaded. The container can then be used by all inheriting test classes. At the end
 of the test suite the Ryuk container that is started by Testcontainers core will take care of stopping the singleton container.
 
-AbstractTestcontainersIT - Superclass for all Testcontainers tests providing the containerized application
+_AbstractTestcontainersIT - Superclass for all Testcontainers tests providing the containerized application_
 ```java
 public abstract class AbstractTestcontainersIT {
 
@@ -291,38 +432,9 @@ public abstract class AbstractTestcontainersIT {
 }
 ```  
 
-
-#### Acceptance tests with Testcontainers, REST-assured and Cucumber
-
-[Cucumber](https://github.com/cucumber/cucumber-jvm) is one of the most popular tools that supports Behaviour-Driven Development(BDD) for
-the Java language. Cucumber reads executable specifications written in natural language and validates that the software does what those
-specifications say. The specifications consist of several examples or scenarios - which is why this approach is known as
-[Specification by Example](https://en.wikipedia.org/wiki/Specification_by_example).
-
-Greet.feature - Acceptance tests in natural language (Gherkin syntax)
-```gherkin
-Feature: Greet
-
-  Scenario: Greet the world
-    Given a greeting "Hello"
-    When a user wants to greet
-    Then the message is "Hello World!"
-
-  Scenario Outline: Greet someone
-    Given a greeting "<greeting>"
-    When a user wants to greet "<name>"
-    Then the message is "<greeting> <name>!"
-
-    Examples:
-      | greeting | name      |
-      | Hola     | Christian |
-      | Hey      | Max       |
-      | Moin     | Stephan   |
-```
-
 To run cucumber tests, you have to to use the `Cucumber` JUnit runner.
 
-GreetingCucumberIT - Test runner that runs all acceptance tests of the project
+_GreetingCucumberIT - Test runner that runs all acceptance tests of the project_
 ```java
 @Cucumber
 public class GreetingCucumberIT {
@@ -331,7 +443,7 @@ public class GreetingCucumberIT {
 
 Due to its BDD-oriented nature, REST-assured seamlessly integrates with Cucumber to implement acceptance tests for RESTful APIs. To
 
-GreetCucumberSteps - Step definitions matching the steps in the feature file
+_GreetCucumberSteps - Step definitions matching the steps in the feature file_
 ```java
 public class GreetCucumberSteps extends AbstractIntegrationTest {
 
@@ -374,6 +486,15 @@ public class GreetCucumberSteps extends AbstractIntegrationTest {
         .get("/greet/{name}");
   }
 
+  @When("a user wants to get the response to {string}")
+  public void when_a_user_wants_to_get_the_response_to(final String salutation) {
+    response = RestAssured.given(requestSpecification)
+        .accept(MediaType.APPLICATION_JSON)
+        .pathParam("salutation", salutation)
+        .when()
+        .get("/greet/response/{salutation}");
+  }
+
   @Then("the message is {string}")
   public void then_the_message_is(final String message) {
     response.then()
@@ -381,12 +502,26 @@ public class GreetCucumberSteps extends AbstractIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .body("message", Matchers.equalTo(message));
   }
+
+  @Then("the response is {string}")
+  public void then_the_response_is(final String response) {
+    this.response.then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("response", Matchers.equalTo(response));
+  }
+
+  @Then("the response is not found")
+  public void then_the_response_is_not_found() {
+    this.response.then()
+        .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+  }
 }
 ```
 
 As expected the execution of the specification examples can also be easily followed in the log output
 
-Cucucmber log output
+_Cucucmber log output_
 ```text
 [INFO] Running de.openknowledge.projects.greet.GreetCucumberIT
 
@@ -410,5 +545,19 @@ Scenario Outline: Greet someone          # src/test/resources/it/feature/Greet.f
   When a user wants to greet "Stephan"   # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_greet(java.lang.String)
   Then the message is "Moin Stephan!"    # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_message_is(java.lang.String)
 
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.916 s - in de.openknowledge.projects.greet.GreetCucumberIT
+Scenario Outline: Get response to salutation       # de/openknowledge/projects/greet/Greet.feature:25
+  When a user wants to get the response to "Marco" # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_get_the_response_to(java.lang.String)
+  Then the response is "Polo"                      # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_response_is(java.lang.String)
+
+Scenario Outline: Get response to salutation      # de/openknowledge/projects/greet/Greet.feature:26
+  When a user wants to get the response to "Ping" # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_get_the_response_to(java.lang.String)
+  Then the response is "Pong"                     # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_response_is(java.lang.String)
+
+Scenario Outline: Get response to salutation      # de/openknowledge/projects/greet/Greet.feature:27
+  When a user wants to get the response to "Moin" # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_get_the_response_to(java.lang.String)
+  Then the response is "Moin"                     # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_response_is(java.lang.String)
+
+Scenario: Get response to unknown salutation      # de/openknowledge/projects/greet/Greet.feature:29
+  When a user wants to get the response to "Polo" # de.openknowledge.projects.greet.GreetCucumberSteps.when_a_user_wants_to_get_the_response_to(java.lang.String)
+  Then the response is not found                  # de.openknowledge.projects.greet.GreetCucumberSteps.then_the_response_is_not_found()
 ```

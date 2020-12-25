@@ -17,6 +17,8 @@ package de.openknowledge.projects.greet.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import de.openknowledge.projects.greet.domain.Greeting;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -41,11 +45,11 @@ class GreetResourceTest {
 
   @BeforeEach
   void setUp() {
-    Mockito.lenient().doCallRealMethod().when(service).getMessage(Mockito.anyString());
+    Mockito.lenient().doCallRealMethod().when(service).getGreet(Mockito.anyString());
   }
 
   @Test
-  void greet() {
+  void greetShouldReturn200() {
     Mockito.doReturn("Hola").when(service).getGreeting();
 
     Response response = resource.greet("Stephan");
@@ -53,12 +57,12 @@ class GreetResourceTest {
     assertThat(response.getEntity()).isEqualTo(new GreetDTO("Hola Stephan!"));
 
     Mockito.verify(service).getGreeting();
-    Mockito.verify(service).getMessage(Mockito.anyString());
+    Mockito.verify(service).getGreet(Mockito.anyString());
     Mockito.verifyNoMoreInteractions(service);
   }
 
   @Test
-  void greetTheWorld() {
+  void greetTheWorldShouldReturn200() {
     Mockito.doReturn("Hello").when(service).getGreeting();
 
     Response response = resource.greetTheWorld();
@@ -66,12 +70,12 @@ class GreetResourceTest {
     assertThat(response.getEntity()).isEqualTo(new GreetDTO("Hello World!"));
 
     Mockito.verify(service).getGreeting();
-    Mockito.verify(service).getMessage(Mockito.anyString());
+    Mockito.verify(service).getGreet(Mockito.anyString());
     Mockito.verifyNoMoreInteractions(service);
   }
 
   @Test
-  void getGreeting() {
+  void getGreetingShouldReturn200() {
     Mockito.doReturn("Hola").when(service).getGreeting();
 
     Response response = resource.getGreeting();
@@ -83,10 +87,33 @@ class GreetResourceTest {
   }
 
   @Test
-  void updateGreeting() {
+  void getResponseShouldReturn200() {
+    Mockito.doReturn(Optional.of(new Greeting("Marco", "Polo"))).when(service).getResponse(Mockito.anyString());
+
+    Response response = resource.getResponse("Macro");
+    assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    assertThat(response.getEntity()).isEqualTo(new ResponseDTO("Polo"));
+
+    Mockito.verify(service).getResponse(Mockito.anyString());
+    Mockito.verifyNoMoreInteractions(service);
+  }
+
+  @Test
+  void getResponseShouldReturn400ForUnknownResponse() {
+    Mockito.doReturn(Optional.empty()).when(service).getResponse(Mockito.anyString());
+
+    Response response = resource.getResponse("Hello");
+    assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+
+    Mockito.verify(service).getResponse(Mockito.anyString());
+    Mockito.verifyNoMoreInteractions(service);
+  }
+
+  @Test
+  void updateGreetingShouldReturn204() {
     Mockito.doNothing().when(service).updateGreeting(Mockito.anyString());
 
-    GreetingDTO newGreeting = new GreetingDTO("Hole");
+    GreetingDTO newGreeting = new GreetingDTO("Hola");
 
     Response response = resource.updateGreeting(newGreeting);
 

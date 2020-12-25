@@ -15,3 +15,17 @@ Feature: Greeting
       | Hola     | Christian |
       | Hey      | Max       |
       | Moin     | Stephan   |
+
+  Scenario Outline: Get response to salutation
+    When a user wants to get the response to "<salutation>"
+    Then the response is "<response>"
+
+    Examples:
+      | salutation | response |
+      | Marco      | Polo     |
+      | Ping       | Pong     |
+      | Moin       | Moin     |
+
+  Scenario: Get response to unknown salutation
+    When a user wants to get the response to "Polo"
+    Then the response is not found

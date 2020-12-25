@@ -15,6 +15,12 @@
  */
 package de.openknowledge.projects.greet.application;
 
+import com.github.database.rider.cdi.api.DBRider;
+import com.github.database.rider.core.api.dataset.DataSet;
+import com.github.database.rider.core.api.dataset.SeedStrategy;
+
+import de.openknowledge.projects.greet.DatabaseTestResource;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +39,8 @@ import io.restassured.RestAssured;
 @QuarkusTest
 @QuarkusTestResource(DatabaseTestResource.class)
 @TestHTTPEndpoint(GreetResource.class)
+@DBRider
+@DataSet(value = "greetings.yml", strategy = SeedStrategy.CLEAN_INSERT, skipCleaningFor = "flyway_schema_history")
 class GreetResourceIT {
 
   @BeforeEach
@@ -47,7 +55,7 @@ class GreetResourceIT {
   }
 
   @Test
-  void greet() {
+  void greetShouldReturn200() {
     RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .pathParam("name", "Stephan")
@@ -60,7 +68,7 @@ class GreetResourceIT {
   }
 
   @Test
-  void greetTheWorld() {
+  void greetTheWorldShouldReturn200() {
     RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
@@ -72,7 +80,7 @@ class GreetResourceIT {
   }
 
   @Test
-  void getGreeting() {
+  void getGreetingShouldReturn200() {
     RestAssured.given()
         .accept(MediaType.APPLICATION_JSON)
         .when()
@@ -84,7 +92,31 @@ class GreetResourceIT {
   }
 
   @Test
-  void updateGreeting() {
+  void getResponseShouldReturn200() {
+    RestAssured.given()
+        .accept(MediaType.APPLICATION_JSON)
+        .pathParam("salutation", "Marco")
+        .when()
+        .get("/response/{salutation}")
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("response", Matchers.equalTo("Polo"));
+  }
+
+  @Test
+  void getResponseShouldReturn404() {
+    RestAssured.given()
+        .accept(MediaType.APPLICATION_JSON)
+        .pathParam("salutation", "Polo")
+        .when()
+        .get("/response/{salutation}")
+        .then()
+        .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+  }
+
+  @Test
+  void updateGreetingShouldReturn204() {
     RestAssured.given()
         .contentType(MediaType.APPLICATION_JSON)
         .body("{ \"greeting\" : \"Hello\" }")

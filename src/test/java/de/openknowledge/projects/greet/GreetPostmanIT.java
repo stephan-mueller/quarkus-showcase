@@ -17,6 +17,10 @@ package de.openknowledge.projects.greet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.database.rider.cdi.api.DBRider;
+import com.github.database.rider.core.api.dataset.DataSet;
+import com.github.database.rider.core.api.dataset.SeedStrategy;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +35,7 @@ import org.testcontainers.utility.MountableFile;
 
 import java.time.Duration;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -38,6 +43,8 @@ import io.quarkus.test.junit.QuarkusTest;
  */
 @QuarkusTest
 @QuarkusTestResource(DatabaseTestResource.class)
+@DBRider
+@DataSet(value = "greetings.yml", strategy = SeedStrategy.CLEAN_INSERT, skipCleaningFor = "flyway_schema_history")
 class GreetPostmanIT {
 
   private static final Logger LOG = LoggerFactory.getLogger(GreetPostmanIT.class);

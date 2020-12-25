@@ -15,8 +15,13 @@
  */
 package de.openknowledge.projects.greet.application;
 
+import de.openknowledge.projects.greet.domain.Greeting;
+import de.openknowledge.projects.greet.domain.GreetingRepository;
+
+import org.apache.commons.lang3.Validate;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,6 +35,8 @@ public class GreetingApplicationService {
 
   private final AtomicReference<String> greeting = new AtomicReference<>();
 
+  private GreetingRepository repository;
+
   public GreetingApplicationService() {
     super();
   }
@@ -38,19 +45,25 @@ public class GreetingApplicationService {
    * Create a new greeting service, reading the message from configuration.
    *
    * @param greeting greeting to use
+   * @param repository the greeting repository
    */
   @Inject
-  public GreetingApplicationService(@ConfigProperty(name = "app.greeting") final String greeting) {
+  public GreetingApplicationService(@ConfigProperty(name = "app.greeting") final String greeting, final GreetingRepository repository) {
     this();
-    this.greeting.set(greeting);
+    this.greeting.set(Validate.notNull(greeting, "greeting must not be null"));
+    this.repository = Validate.notNull(repository, "repository must not be null");
   }
 
   public String getGreeting() {
     return greeting.get();
   }
 
-  public String getMessage(final String who) {
+  public String getGreet(final String who) {
     return String.format("%s %s!", getGreeting(), who);
+  }
+
+  public Optional<Greeting> getResponse(final String salutation) {
+    return repository.findBySalutation(salutation);
   }
 
   public void updateGreeting(final String greeting) {

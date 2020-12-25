@@ -1,0 +1,6 @@
+caseInsensitiveStrategy: LOWERCASE
+raiseExceptionOnCleanUp: false
+properties:
+  caseSensitiveTableNames: false
+  escapePattern: "?"
+  schema: public

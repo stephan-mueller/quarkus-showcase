@@ -1,0 +1,10 @@
+greeting:
+  - ID: 1
+    SALUTATION: Marco
+    RESPONSE: Polo
+  - ID: 2
+    SALUTATION: Ping
+    RESPONSE: Pong
+  - ID: 3
+    SALUTATION: Moin
+    RESPONSE: Moin

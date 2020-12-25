@@ -27,6 +27,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Path;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -45,7 +46,9 @@ public class GreetResourceHealthCheck implements HealthCheck {
   public HealthCheckResponse call() {
     HealthCheckResponseBuilder builder = HealthCheckResponse.named(GreetResource.class.getSimpleName());
 
-    Response response = ClientBuilder.newClient()
+    Client client = ClientBuilder.newClient();
+
+    Response response = client
         .target(getResourceUri())
         .request()
         .header("ORIGIN", String.format("%s:%d", "localhost", getPort()))
@@ -58,6 +61,8 @@ public class GreetResourceHealthCheck implements HealthCheck {
     } else {
       builder.withData("resource", "not available").down();
     }
+
+    client.close();
 
     return builder.build();
   }
