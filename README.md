@@ -30,13 +30,26 @@ Before running the application it needs to be compiled and packaged using `Maven
 run via `docker`:
 
 ```shell script
-$ docker-compose up database
-$ mvn clean package
-$ docker-compose up application
+docker-compose up database
+mvn clean package
+docker-compose up application
 ```
 
-If everything worked you can access the OpenAPI UI via [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui). In addition to
-that the Quarkus Health UI can be accessed via http://localhost:8080/health-ui/.
+If everything worked you can access the OpenAPI UI via [http://localhost:8080/q/swagger-ui](http://localhost:8080/q/swagger-ui). In addition to
+that the Quarkus Health UI can be accessed via http://localhost:8080/q/health-ui/.
+
+
+### How to run Quarkus Dev Mode
+
+If you want to run the application in Quarkus dev mode, you have to start the database before:
+
+```shell script
+$ docker-compose up database
+$ mvn quarkus:dev
+```
+
+If everything worked you can access the Dev UI via [http://localhost:8080/q/dev](http://localhost:8080/q/dev).
+
 
 ### How to run a native image 
 
@@ -130,25 +143,25 @@ The application server provides built-in support for health, metrics and openapi
 
 Health liveness and readiness
 ```shell script
-curl -s -X GET http://localhost:8080/health
+curl -s -X GET http://localhost:8080/q/health
 
-curl -s -X GET http://localhost:8080/health/live
+curl -s -X GET http://localhost:8080/q/health/live
 
-curl -s -X GET http://localhost:8080/health/ready
+curl -s -X GET http://localhost:8080/q/health/ready
 ```
 
 Metrics in Prometheus / JSON Format
 ```shell script
-curl -s -X GET http://localhost:8080/metrics
+curl -s -X GET http://localhost:8080/q/metrics
 
-curl -H 'Accept: application/json' -X GET http://localhost:8080/metrics
+curl -H 'Accept: application/json' -X GET http://localhost:8080/q/metrics
 ```
 
 OpenAPI in YAML / JSON Format
 ```shell script
-curl -s -X GET http://localhost:8080/openapi
+curl -s -X GET http://localhost:8080/q/openapi
 
-curl -H 'Accept: application/json' -X GET http://localhost:8080/openapi
+curl -H 'Accept: application/json' -X GET http://localhost:8080/q/openapi
 ```
 
 
