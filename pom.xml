@@ -22,7 +22,7 @@
 
         <version.microprofile-ext>1.1.0</version.microprofile-ext>
 
-        <version.apache_commons-lang>3.11</version.apache_commons-lang>
+        <version.apache_commons-lang>3.18.0</version.apache_commons-lang>
 
         <version.slf4j>1.7.30</version.slf4j>
 
